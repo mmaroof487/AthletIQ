@@ -16,6 +16,7 @@ function FitnessTracker() {
 	const [newCalories, setNewCalories] = useState("");
 	const [foodName, setFoodName] = useState("");
 	const [data, setData] = useState();
+	const clientUrl = import.meta.env.VITE_CLIENT_URL;
 
 	useEffect(() => {
 		fetchUserProfile();
@@ -23,10 +24,10 @@ function FitnessTracker() {
 
 	const fetchUserProfile = async () => {
 		try {
-			const userId = localStorage.getItem("userId");
-			const response = await fetch(`http://localhost:5000/api/v1/dashboard/${userId}`);
 			const data2 = await api.getFitnessData();
+			const userId = localStorage.getItem("userId");
 			setLoading(false);
+			const response = await fetch(`${clientUrl}/dashboard/${userId}`);
 			const data = await response.json();
 			if (!response.ok) {
 				throw new Error("Failed to fetch user data");
@@ -45,7 +46,7 @@ function FitnessTracker() {
 
 		try {
 			const userId = localStorage.getItem("userId");
-			const response = await fetch(`http://localhost:5000/api/v1/fitness/weight`, {
+			const response = await fetch(`${clientUrl}/fitness/weight`, {
 				method: "POST",
 				headers: { "Content-Type": "application/json" },
 				body: JSON.stringify({ userId, date: today, weight: Number(newWeight) }),
@@ -60,7 +61,7 @@ function FitnessTracker() {
 					weight: [...prev.weight, { date: today, value: Number(newWeight) }],
 				};
 			});
-
+			window.location.reload();
 			setNewWeight("");
 			setShowAddWeight(false);
 		} catch (error) {
@@ -76,7 +77,7 @@ function FitnessTracker() {
 		try {
 			const userId = localStorage.getItem("userId");
 
-			const response = await fetch(`http://localhost:5000/api/v1/fitness/calories`, {
+			const response = await fetch(`${clientUrl}/fitness/calories`, {
 				method: "POST",
 				headers: { "Content-Type": "application/json" },
 				body: JSON.stringify({ userId, date: today, calories: Number(newCalories), food: foodName }),
@@ -91,7 +92,7 @@ function FitnessTracker() {
 					calories: [...prev.calories, { date: today, value: Number(newCalories), food: foodName }],
 				};
 			});
-
+			window.location.reload();
 			setNewCalories("");
 			setFoodName("");
 			setShowAddCalories(false);
@@ -110,9 +111,7 @@ function FitnessTracker() {
 
 	const caloriesStats = fitnessData?.calories.length
 		? {
-				average: Math.round(fitnessData.calories.reduce((sum, day) => sum + day.value, 0) / fitnessData.calories.length),
 				highest: Math.max(...fitnessData.calories.map((day) => day.value)),
-				lowest: Math.min(...fitnessData.calories.map((day) => day.value)),
 		  }
 		: null;
 
@@ -182,15 +181,15 @@ function FitnessTracker() {
 							<>
 								<Card>
 									<p className="text-gray-400 text-sm">Average Daily</p>
-									<p className="text-2xl font-bold">{caloriesStats.average} cal</p>
+									<p className="text-2xl font-bold">{data.bodyMeasurement.calorieintake || "0"} cal</p>
 								</Card>
 								<Card>
 									<p className="text-gray-400 text-sm">Highest Day</p>
-									<p className="text-2xl font-bold">{caloriesStats.highest} cal</p>
+									<p className="text-2xl font-bold">{data.totalCalories} cal</p>
 								</Card>
 								<Card>
 									<p className="text-gray-400 text-sm">Lowest Day</p>
-									<p className="text-2xl font-bold">{caloriesStats.lowest} cal</p>
+									<p className="text-2xl font-bold">{caloriesStats.highest} cal</p>
 								</Card>
 							</>
 						)}
@@ -244,11 +243,11 @@ function FitnessTracker() {
 							<>
 								<Card>
 									<p className="text-gray-400 text-sm">Current Weight</p>
-									<p className="text-2xl font-bold">{data.weight} kg</p>
+									<p className="text-2xl font-bold">{data.bodyMeasurement.weight} kg</p>
 								</Card>
 								<Card>
 									<p className="text-gray-400 text-sm">Weight Change</p>
-									<p className="text-2xl font-bold">{data.weightchange} kg</p>
+									<p className="text-2xl font-bold">{data.bodyMeasurement.weightchange} kg</p>
 								</Card>
 								<Card>
 									<p className="text-gray-400 text-sm">Starting Weight</p>

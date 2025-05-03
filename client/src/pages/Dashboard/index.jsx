@@ -11,6 +11,7 @@ const Dashboard = ({ user }) => {
 	const [error, setError] = useState(true);
 	const [data, setData] = useState("");
 	const [cal, setCal] = useState("");
+	const clientUrl = import.meta.env.VITE_CLIENT_URL;
 
 	useEffect(() => {
 		fetchUserProfile();
@@ -19,8 +20,8 @@ const Dashboard = ({ user }) => {
 	const fetchUserProfile = async () => {
 		try {
 			const userId = localStorage.getItem("userId");
-			const response = await fetch(`http://localhost:5000/api/v1/dashboard/${userId}`);
 			setLoading(false);
+			const response = await fetch(`${clientUrl}/dashboard/${userId}`);
 			const data = await response.json();
 			const data2 = await api.getFitnessData();
 			if (!response.ok) {

@@ -37,23 +37,25 @@ const Nutrition = () => {
 		{ name: "Carbs", value: 60 * 4 },
 		{ name: "Fat", value: 20 * 9 },
 	];
-
 	const COLORS = ["#22C55E", "#3B82F6", "#FF6B00"];
+	const clientUrl = import.meta.env.VITE_CLIENT_URL;
 
 	useEffect(() => {
 		const fetchTodaysMeals = async () => {
 			try {
 				const userId = localStorage.getItem("userId");
 
-				const response1 = await fetch(`http://localhost:5000/api/v1/dashboard/${userId}`);
-				const response = await fetch(`http://localhost:5000/api/v1/meals/${userId}`);
-
+				const response1 = await fetch(`${clientUrl}/dashboard/${userId}`);
+				const data1 = await response1.json();
+				if (!response1.ok) {
+					throw new Error("Failed to fetch calories");
+				}
+				setInfo(data1);
+				const response = await fetch(`${clientUrl}/fitness/meals/${userId}`);
 				if (!response.ok) {
 					throw new Error("Failed to fetch today's meals");
 				}
-				const data1 = await response1.json();
 				const data = await response.json();
-				setInfo(data1);
 				setToday(data.meals);
 			} catch (error) {
 				console.error("Error fetching today's meals:", error.message);
@@ -71,7 +73,7 @@ const Nutrition = () => {
 		try {
 			const userId = localStorage.getItem("userId");
 
-			const response = await fetch(`http://localhost:5000/api/v1/fitness/calories`, {
+			const response = await fetch(`${clientUrl}/fitness/calories`, {
 				method: "POST",
 				headers: {
 					"Content-Type": "application/json",

@@ -8,6 +8,7 @@ import Input from "@/components/ui/Input";
 
 const Register = () => {
 	const [generalError, setGeneralError] = useState(null);
+	const clientUrl = import.meta.env.VITE_CLIENT_URL;
 	const navigate = useNavigate();
 
 	const {
@@ -23,7 +24,7 @@ const Register = () => {
 		try {
 			setGeneralError(null);
 
-			const response = await fetch("http://localhost:5000/api/v1/register", {
+			const response = await fetch(`${clientUrl}/auth/register`, {
 				method: "POST",
 				headers: {
 					"Content-Type": "application/json",

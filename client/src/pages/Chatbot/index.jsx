@@ -14,7 +14,7 @@ const Chatbot = () => {
 	const [inputMessage, setInputMessage] = useState("");
 	const [isTyping, setIsTyping] = useState(false);
 	const messagesEndRef = useRef(null);
-
+	const apiUrl = import.meta.env.VITE_API_URL;
 	const scrollToBottom = () => {
 		messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
 	};
@@ -36,7 +36,7 @@ const Chatbot = () => {
 		setIsTyping(true);
 
 		try {
-			const response = await axios.post("https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key=AIzaSyDLVzdO_BYSN9xKkc4br0VZHcjqlaDy2CU", {
+			const response = await axios.post(`${apiUrl}`, {
 				contents: [
 					{
 						parts: [

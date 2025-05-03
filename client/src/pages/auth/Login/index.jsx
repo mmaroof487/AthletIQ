@@ -9,6 +9,7 @@ import { useNavigate } from "react-router-dom";
 
 const Login = () => {
 	const [generalError, setGeneralError] = useState(null);
+	const clientUrl = import.meta.env.VITE_CLIENT_URL;
 
 	const {
 		register,
@@ -22,7 +23,7 @@ const Login = () => {
 		try {
 			setGeneralError(null);
 
-			const response = await fetch("http://localhost:5000/api/v1/login", {
+			const response = await fetch(`${clientUrl}/auth/login`, {
 				method: "POST",
 				headers: {
 					"Content-Type": "application/json",
