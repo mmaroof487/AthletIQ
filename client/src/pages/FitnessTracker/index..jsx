@@ -25,12 +25,12 @@ function FitnessTracker() {
 		try {
 			const userId = localStorage.getItem("userId");
 			const response = await fetch(`http://localhost:5000/api/v1/dashboard/${userId}`);
+			setLoading(false);
 			const data2 = await api.getFitnessData();
 			const data = await response.json();
 			if (!response.ok) {
 				throw new Error("Failed to fetch user data");
 			}
-			setLoading(false);
 			setData(data);
 			setFitnessData(data2);
 		} catch (err) {

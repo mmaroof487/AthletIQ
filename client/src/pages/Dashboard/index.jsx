@@ -9,8 +9,8 @@ const Dashboard = ({ user }) => {
 	const [fitnessData, setFitnessData] = useState(null);
 	const [loading, setLoading] = useState(true);
 	const [error, setError] = useState(true);
-	const [data, setData] = useState();
-	const [cal, setCal] = useState();
+	const [data, setData] = useState("");
+	const [cal, setCal] = useState("");
 
 	useEffect(() => {
 		fetchUserProfile();
@@ -20,13 +20,13 @@ const Dashboard = ({ user }) => {
 		try {
 			const userId = localStorage.getItem("userId");
 			const response = await fetch(`http://localhost:5000/api/v1/dashboard/${userId}`);
+			setLoading(false);
 			const data = await response.json();
 			const data2 = await api.getFitnessData();
 			if (!response.ok) {
 				throw new Error("Failed to fetch user data");
 			}
 			setCal(data.totalCalories);
-			setLoading(false);
 			setData(data.bodyMeasurement);
 			setFitnessData(data2);
 		} catch (err) {
@@ -80,7 +80,7 @@ const Dashboard = ({ user }) => {
 						</div>
 						<div>
 							<p className="text-gray-400 text-sm">Current Weight</p>
-							<p className="text-2xl font-bold">{data.weight || 0} kg</p>
+							<p className="text-2xl font-bold">{data?.weight || 0} kg</p>
 						</div>
 					</Card>
 				</motion.div>
@@ -92,7 +92,7 @@ const Dashboard = ({ user }) => {
 						</div>
 						<div>
 							<p className="text-gray-400 text-sm">Weight Change</p>
-							<p className="text-2xl font-bold">{data.weightchange || 0} kg</p>
+							<p className="text-2xl font-bold">{data?.weightchange || 0} kg</p>
 						</div>
 					</Card>
 				</motion.div>
@@ -104,7 +104,7 @@ const Dashboard = ({ user }) => {
 						</div>
 						<div>
 							<p className="text-gray-400 text-sm">Avg. Daily Calories</p>
-							<p className="text-2xl font-bold">{data.calorieintake || 0}</p>
+							<p className="text-2xl font-bold">{data?.calorieintake || 0}</p>
 						</div>
 					</Card>
 				</motion.div>
@@ -192,7 +192,7 @@ const Dashboard = ({ user }) => {
 												</div>
 											</div>
 											<div className="text-right">
-												<p className="font-medium">{workout.duration} min</p>
+												<p className="font-medium">{workout?.duration} min</p>
 											</div>
 										</div>
 									))

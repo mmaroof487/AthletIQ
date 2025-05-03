@@ -92,10 +92,10 @@ const Login = () => {
 						<input type="checkbox" className="rounded border-gray-600 text-primary-500 focus:ring-primary-500" />
 						<span className="ml-2 text-gray-300">Remember me</span>
 					</label>
-
+					{/*
 					<a href="#" className="text-primary-500 hover:text-primary-400 transition-colors">
 						Forgot password?
-					</a>
+					</a> */}
 				</div>
 
 				<Button type="submit" variant="primary" fullWidth isLoading={isSubmitting} className="mt-6">

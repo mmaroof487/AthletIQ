@@ -59,7 +59,7 @@ const Profile = () => {
 					weight: data.weight || user[1].weight,
 					fitnessGoal: data.fitnessGoal || user[0].fitnessgoal,
 					gender: data.gender || user[1].gender,
-					imgurl: data.imgurl || user[1].imgurl,
+					imgurl: "" || data?.imgurl || user[1]?.imgurl,
 				}),
 			});
 

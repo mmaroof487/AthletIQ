@@ -45,14 +45,14 @@ const Nutrition = () => {
 			try {
 				const userId = localStorage.getItem("userId");
 
-				const response = await fetch(`http://localhost:5000/api/v1/meals/${userId}`);
 				const response1 = await fetch(`http://localhost:5000/api/v1/dashboard/${userId}`);
+				const response = await fetch(`http://localhost:5000/api/v1/meals/${userId}`);
 
 				if (!response.ok) {
 					throw new Error("Failed to fetch today's meals");
 				}
-				const data = await response.json();
 				const data1 = await response1.json();
+				const data = await response.json();
 				setInfo(data1);
 				setToday(data.meals);
 			} catch (error) {
@@ -89,6 +89,7 @@ const Nutrition = () => {
 			}
 
 			await response.json();
+			window.location.reload();
 
 			setNewCalories("");
 			setFoodName("");

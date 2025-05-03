@@ -45,7 +45,7 @@ const Register = () => {
 			localStorage.setItem("token", dataResponse.token);
 			localStorage.setItem("userId", dataResponse.user.id);
 
-			navigate("/dashboard");
+			navigate("/profile");
 		} catch (error) {
 			console.error("Registration error:", error);
 			setGeneralError("Failed to register. Please try again.");
@@ -62,7 +62,7 @@ const Register = () => {
 			<form onSubmit={handleSubmit(onSubmit)} className="space-y-4">
 				<Input
 					type="text"
-					label="email"
+					label="Email"
 					placeholder="john_doe@gmail.com"
 					icon={<User size={18} />}
 					error={errors.email?.message}
