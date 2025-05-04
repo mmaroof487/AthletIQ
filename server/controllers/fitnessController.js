@@ -1,36 +1,40 @@
 import client from "../db/client.js";
 
 export const weight = async (req, res) => {
-	const { userId, date, weight } = req.body;
+	const { userId, weight, height, gender, calorieIntake } = req.body;
 
-	if (!userId || !date || !weight || isNaN(weight)) {
+	if (!userId || !weight || isNaN(weight)) {
 		return res.status(400).json({ error: "Invalid data provided" });
 	}
 
 	try {
-		// Check if the user exists
-		const userResult = await client.query("SELECT * FROM member WHERE id = $1", [userId]);
-		if (userResult.rows.length === 0) {
-			return res.status(404).json({ error: "User not found" });
+		// Get the previous weight for weight change calculation
+		const prevQuery = "SELECT weight FROM bodymeasurement WHERE user_id = $1";
+		const prevResult = await client.query(prevQuery, [userId]);
+
+		let weightChange = 0;
+		if (prevResult.rows.length > 0) {
+			const previousWeight = prevResult.rows[0].weight;
+			weightChange = weight - previousWeight;
 		}
 
-		// Get previous weight
-		const prevResult = await client.query("SELECT weight FROM bodymeasurement WHERE user_id = $1 ORDER BY date DESC LIMIT 1", [userId]);
-
-		const previousWeight = prevResult.rows.length > 0 ? parseFloat(prevResult.rows[0].weight) : weight;
-		const weightChange = weight - previousWeight;
-
-		// Use ON CONFLICT for insert-or-update
+		// Upsert (insert or update on conflict)
 		const query = `
-			INSERT INTO bodymeasurement (user_id, date, weight, weightchange)
-			VALUES ($1, $2, $3, $4)
-			ON CONFLICT (user_id, date)
-			DO UPDATE SET weight = EXCLUDED.weight, weightchange = EXCLUDED.weightchange
-			RETURNING *;
-		`;
+      INSERT INTO bodymeasurement (user_id, weight, height, gender, calorieintake, weightchange)
+      VALUES ($1, $2, $3, $4, $5, $6)
+      ON CONFLICT (user_id)
+      DO UPDATE SET
+        weight = EXCLUDED.weight,
+        height = EXCLUDED.height,
+        gender = EXCLUDED.gender,
+        calorieintake = EXCLUDED.calorieintake,
+        weightchange = EXCLUDED.weightchange
+      RETURNING *;
+    `;
 
-		const result = await client.query(query, [userId, date, weight, weightChange]);
-		return res.status(201).json(result.rows[0]);
+		const result = await client.query(query, [userId, weight, height, gender, calorieIntake, weightChange]);
+
+		res.status(200).json(result.rows[0]);
 	} catch (err) {
 		console.error("Error updating weight entry:", err);
 		res.status(500).json({ error: "Internal Server Error" });

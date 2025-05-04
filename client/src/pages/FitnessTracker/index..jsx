@@ -184,11 +184,11 @@ function FitnessTracker() {
 									<p className="text-2xl font-bold">{data.bodyMeasurement.calorieintake || "0"} cal</p>
 								</Card>
 								<Card>
-									<p className="text-gray-400 text-sm">Highest Day</p>
+									<p className="text-gray-400 text-sm">Total Today</p>
 									<p className="text-2xl font-bold">{data.totalCalories} cal</p>
 								</Card>
 								<Card>
-									<p className="text-gray-400 text-sm">Lowest Day</p>
+									<p className="text-gray-400 text-sm">Highest Day</p>
 									<p className="text-2xl font-bold">{caloriesStats.highest} cal</p>
 								</Card>
 							</>
