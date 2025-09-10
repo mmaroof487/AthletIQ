@@ -1,47 +1,59 @@
-import client from "../db/client.js";
+import client from "../config/db.js";
 
-export const weight = async (req, res) => {
-	const { userId, weight, height, gender, calorieIntake } = req.body;
+export const addWeight = async (req, res) => {
+	const { userId, date, weight } = req.body;
 
-	if (!userId || !weight || isNaN(weight)) {
+	if (!userId || !date || !weight || isNaN(weight)) {
 		return res.status(400).json({ error: "Invalid data provided" });
 	}
 
 	try {
-		// Get the previous weight for weight change calculation
-		const prevQuery = "SELECT weight FROM bodymeasurement WHERE user_id = $1";
-		const prevResult = await client.query(prevQuery, [userId]);
+		const userQuery = "SELECT * FROM member WHERE id = $1";
+		const userResult = await client.query(userQuery, [userId]);
+
+		if (userResult.rows.length === 0) {
+			return res.status(404).json({ error: "User not found" });
+		}
+
+		const prevWeightQuery = "SELECT weight FROM bodymeasurement WHERE user_id = $1 ORDER BY date DESC LIMIT 1";
+		const prevWeightResult = await client.query(prevWeightQuery, [userId]);
 
 		let weightChange = 0;
-		if (prevResult.rows.length > 0) {
-			const previousWeight = prevResult.rows[0].weight;
+
+		if (prevWeightResult.rows.length > 0) {
+			const previousWeight = prevWeightResult.rows[0].weight;
 			weightChange = weight - previousWeight;
 		}
 
-		// Upsert (insert or update on conflict)
-		const query = `
-      INSERT INTO bodymeasurement (user_id, weight, height, gender, calorieintake, weightchange)
-      VALUES ($1, $2, $3, $4, $5, $6)
-      ON CONFLICT (user_id)
-      DO UPDATE SET
-        weight = EXCLUDED.weight,
-        height = EXCLUDED.height,
-        gender = EXCLUDED.gender,
-        calorieintake = EXCLUDED.calorieintake,
-        weightchange = EXCLUDED.weightchange
-      RETURNING *;
-    `;
+		const checkRecordQuery = "SELECT * FROM bodymeasurement WHERE user_id = $1 AND date = $2";
+		const checkRecordResult = await client.query(checkRecordQuery, [userId, date]);
 
-		const result = await client.query(query, [userId, weight, height, gender, calorieIntake, weightChange]);
+		let result;
+		if (checkRecordResult.rows.length > 0) {
+			const updateQuery = `
+                UPDATE bodymeasurement
+                SET weight = $1, weightchange = $2
+                WHERE user_id = $3 AND date = $4
+                RETURNING *`;
 
-		res.status(200).json(result.rows[0]);
+			result = await client.query(updateQuery, [weight, weightChange, userId, date]);
+		} else {
+			const insertQuery = `
+                INSERT INTO bodymeasurement (user_id, date, weight, weight_change)
+                VALUES ($1, $2, $3, $4)
+                RETURNING *`;
+
+			result = await client.query(insertQuery, [userId, date, weight, weightChange]);
+		}
+
+		return res.status(201).json(result.rows[0]);
 	} catch (err) {
 		console.error("Error updating weight entry:", err);
 		res.status(500).json({ error: "Internal Server Error" });
 	}
 };
 
-export const calories = async (req, res) => {
+export const addCalories = async (req, res) => {
 	const { userId, date, calories, food } = req.body;
 
 	if (!userId || !date || !calories || !food || isNaN(calories)) {
@@ -59,14 +71,12 @@ export const calories = async (req, res) => {
 	}
 };
 
-export const meals = async (req, res) => {
+export const getMeals = async (req, res) => {
 	const userId = req.params.userId;
 
 	try {
-		// Get today's date in 'YYYY-MM-DD' format
-		const currentDate = new Date().toISOString().split("T")[0]; // 'YYYY-MM-DD'
+		const currentDate = new Date().toISOString().split("T")[0];
 
-		// Query to get all meals for the user on the current date
 		const mealsQuery = `
             SELECT *
             FROM meals
@@ -78,8 +88,7 @@ export const meals = async (req, res) => {
 			return res.status(404).json({ error: "No meals found for today" });
 		}
 
-		// Return meals for today
-		res.json({ meals: mealsResult.rows || "0" });
+		res.json({ meals: mealsResult.rows });
 	} catch (err) {
 		console.error("Error fetching meals:", err);
 		res.status(500).json({ error: "Internal Server Error" });

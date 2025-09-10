@@ -21,7 +21,16 @@ const Profile = () => {
 	const fetchUserProfile = async () => {
 		try {
 			const userId = localStorage.getItem("userId");
-			const response = await fetch(`${clientUrl}/profile/${userId}`);
+			const token = localStorage.getItem("token");
+
+			const response = await fetch(`${clientUrl}/user/profile/${userId}`, {
+				method: "GET",
+				headers: {
+					"Content-Type": "application/json",
+					Authorization: `Bearer ${token}`,
+				},
+			});
+
 			const data = await response.json();
 
 			if (!response.ok) {

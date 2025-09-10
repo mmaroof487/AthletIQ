@@ -8,12 +8,12 @@ const client = new Client({
 	host: process.env.DB_HOST,
 	database: process.env.DB_NAME,
 	password: process.env.DB_PASSWORD,
-	port: process.env.DB_PORT,
+	port: parseInt(process.env.DB_PORT, 10),
 });
 
 client
 	.connect()
 	.then(() => console.log("Database connected"))
-	.catch((err) => console.error("Database connection error", err.stack));
+	.catch((err) => console.error("Database connection failed:", err));
 
 export default client;

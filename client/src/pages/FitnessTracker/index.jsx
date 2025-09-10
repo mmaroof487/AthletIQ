@@ -4,9 +4,8 @@ import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContai
 import Card from "@/components/ui/Card";
 import Button from "@/components/ui/Button";
 import Input from "@/components/ui/Input";
-import { api } from "@/services/api";
 
-function FitnessTracker() {
+const FitnessTracker = () => {
 	const [fitnessData, setFitnessData] = useState(null);
 	const [loading, setLoading] = useState(true);
 	const [activeTab, setActiveTab] = useState("calories");
@@ -27,7 +26,15 @@ function FitnessTracker() {
 			const data2 = await api.getFitnessData();
 			const userId = localStorage.getItem("userId");
 			setLoading(false);
-			const response = await fetch(`${clientUrl}/dashboard/${userId}`);
+			const token = localStorage.getItem("token");
+			const response = await fetch(`${clientUrl}/user/dashboard/${userId}`, {
+				method: "GET",
+				headers: {
+					"Content-Type": "application/json",
+					Authorization: `Bearer ${token}`,
+				},
+			});
+
 			const data = await response.json();
 			if (!response.ok) {
 				throw new Error("Failed to fetch user data");
@@ -274,6 +281,6 @@ function FitnessTracker() {
 			)}
 		</div>
 	);
-}
+};
 
 export default FitnessTracker;

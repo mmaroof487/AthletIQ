@@ -1,25 +1,49 @@
-import client from "../db/client.js";
+import client from "../config/db.js";
 
-export const getProfile = async (req, res) => {
-	const userId = req.params.userId;
+export const getDashboard = async (req, res) => {
+	const { userId } = req.params;
 	try {
-		const userResult = await client.query("SELECT * FROM member WHERE id = $1", [userId]);
-		const bodyResult = await client.query("SELECT * FROM bodymeasurement WHERE user_id = $1 ORDER BY date DESC LIMIT 1", [userId]);
-		if (userResult.rows.length === 0) {
+		const bodyMeasurementQuery = "SELECT * FROM bodymeasurement WHERE user_id = $1";
+		const bodyMeasurementResult = await client.query(bodyMeasurementQuery, [userId]);
+
+		if (bodyMeasurementResult.rows.length === 0) {
 			return res.status(404).json({ error: "User not found" });
 		}
 
+		const currentDate = new Date().toISOString().split("T")[0];
+		const mealsQuery = `
+      SELECT SUM(calories) AS total_calories
+      FROM meals
+      WHERE user_id = $1 AND date = $2
+    `;
+		const mealsResult = await client.query(mealsQuery, [userId, currentDate]);
+
 		res.json({
-			user: userResult.rows[0],
-			bodyMeasurement: bodyResult.rows[0] || null,
+			bodyMeasurement: bodyMeasurementResult.rows[0],
+			totalCalories: mealsResult.rows[0].total_calories || 0,
 		});
 	} catch (err) {
-		console.error("Error fetching user profile:", err);
+		console.error("Error fetching user dashboard:", err);
 		res.status(500).json({ error: "Internal Server Error" });
 	}
 };
 
-export const updateProfile = async (req, res) => {
+export const getProfile = async (req, res) => {
+	const { userId } = req.params;
+	try {
+		const user = await client.query("SELECT * FROM member WHERE id = $1", [userId]);
+		const body = await client.query("SELECT * FROM bodymeasurement WHERE user_id = $1", [userId]);
+
+		if (user.rows.length === 0) return res.status(404).json({ error: "User not found" });
+
+		res.json([user.rows[0], body.rows[0]]);
+	} catch (err) {
+		console.error("Error fetching profile:", err);
+		res.status(500).json({ error: "Internal Server Error" });
+	}
+};
+
+export const updateProfile = async () => {
 	const { name, phone, address, birthday, height, weight, fitnessGoal, gender, imgurl, activityLevel = 1.55 } = req.body; // activityLevel default is moderate
 	const userId = req.params.userId;
 

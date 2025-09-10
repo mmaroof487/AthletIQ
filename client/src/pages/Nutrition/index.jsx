@@ -72,11 +72,12 @@ const Nutrition = () => {
 
 		try {
 			const userId = localStorage.getItem("userId");
-
+			const token = localStorage.getItem("token");
 			const response = await fetch(`${clientUrl}/fitness/calories`, {
 				method: "POST",
 				headers: {
 					"Content-Type": "application/json",
+					Authorization: `Bearer ${token}`,
 				},
 				body: JSON.stringify({
 					userId,
@@ -125,7 +126,7 @@ const Nutrition = () => {
 				<motion.div initial={{ opacity: 0, height: 0 }} animate={{ opacity: 1, height: "auto" }} className="bg-dark-800 rounded-lg p-4 border border-dark-700">
 					<div className="flex flex-col md:flex-row items-end gap-4">
 						<div className="flex-grow">
-							<Input label="Calories Consumed" type="number" value={newCalories} onChange={(e) => setNewCalories(e.target.value)} placeholder="Enter calories consumed" />
+							<Input label="Calories Consumed" type="number" step="100" value={newCalories} onChange={(e) => setNewCalories(e.target.value)} placeholder="Enter calories consumed" />
 						</div>
 						<div className="flex-grow">
 							<Input label="Food Name" type="text" value={foodName} onChange={(e) => setFoodName(e.target.value)} placeholder="Enter food name" />

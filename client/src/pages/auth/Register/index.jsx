@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import { useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import { useForm } from "react-hook-form";
 import { motion } from "framer-motion";
@@ -22,8 +22,6 @@ const Register = () => {
 
 	const onSubmit = async (data) => {
 		try {
-			setGeneralError(null);
-
 			const response = await fetch(`${clientUrl}/auth/register`, {
 				method: "POST",
 				headers: {
@@ -36,12 +34,12 @@ const Register = () => {
 				}),
 			});
 
+			const dataResponse = await response.json();
+
 			if (!response.ok) {
-				const errorData = await response.json();
+				const errorData = await dataResponse.json();
 				throw new Error(errorData.message || "Registration failed");
 			}
-
-			const dataResponse = await response.json();
 
 			localStorage.setItem("token", dataResponse.token);
 			localStorage.setItem("userId", dataResponse.user.id);

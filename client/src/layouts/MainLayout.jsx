@@ -8,6 +8,8 @@ const MainLayout = () => {
 	const navigate = useNavigate();
 
 	const handleLogout = async () => {
+		localStorage.removeItem("token");
+		localStorage.removeItem("userId");
 		navigate("/login");
 	};
 

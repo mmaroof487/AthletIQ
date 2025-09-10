@@ -21,7 +21,16 @@ const Dashboard = ({ user }) => {
 		try {
 			const userId = localStorage.getItem("userId");
 			setLoading(false);
-			const response = await fetch(`${clientUrl}/dashboard/${userId}`);
+			const token = localStorage.getItem("token");
+
+			const response = await fetch(`${clientUrl}/user/dashboard/${userId}`, {
+				method: "GET",
+				headers: {
+					"Content-Type": "application/json",
+					Authorization: `Bearer ${token}`,
+				},
+			});
+
 			const data = await response.json();
 			const data2 = await api.getFitnessData();
 			if (!response.ok) {

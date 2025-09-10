@@ -1,0 +1,36 @@
+const workoutPlans = [
+	{
+		id: 1,
+		title: "Beginner Strength Program",
+		level: "Beginner",
+		duration: "4 weeks",
+		frequency: "3x per week",
+		focus: "Full Body",
+		link: "https://muscleandstrength.com/sites/default/files/workouts/superstrength8weekstrengthbuildingworkout.pdf",
+		image: "https://images.pexels.com/photos/703016/pexels-photo-703016.jpeg?auto=compress&cs=tinysrgb&w=500",
+		description: "Perfect for beginners looking to build a foundation of strength.",
+	},
+	{
+		id: 2,
+		title: "Advanced HIIT Challenge",
+		level: "Advanced",
+		duration: "8 weeks",
+		frequency: "5x per week",
+		focus: "Fat Loss",
+		link: "https://www.muscleandstrength.com/sites/default/files/workouts/mnsfullbody.pdf",
+		image: "https://images.pexels.com/photos/4162490/pexels-photo-4162490.jpeg?auto=compress&cs=tinysrgb&w=500",
+		description: "High-intensity interval training to maximize calorie burn and improve cardiovascular fitness.",
+	},
+	{
+		id: 3,
+		title: "Muscle Building Program",
+		level: "Intermediate",
+		duration: "12 weeks",
+		frequency: "4x per week",
+		focus: "Hypertrophy",
+		link: "https://www.muscleandstrength.com/sites/default/files/workouts/bulldozer3day_0.pdf",
+		image: "https://images.pexels.com/photos/1229356/pexels-photo-1229356.jpeg?auto=compress&cs=tinysrgb&w=500",
+		description: "Focused on maximizing muscle growth through progressive overload.",
+	},
+];
+export default workoutPlans;

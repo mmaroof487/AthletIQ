@@ -1,11 +1,10 @@
 import { useState } from "react";
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import { useForm } from "react-hook-form";
 import { motion } from "framer-motion";
 import { Mail, Lock } from "lucide-react";
 import Button from "@/components/ui/Button";
 import Input from "@/components/ui/Input";
-import { useNavigate } from "react-router-dom";
 
 const Login = () => {
 	const [generalError, setGeneralError] = useState(null);
@@ -21,8 +20,6 @@ const Login = () => {
 
 	const onSubmit = async (data) => {
 		try {
-			setGeneralError(null);
-
 			const response = await fetch(`${clientUrl}/auth/login`, {
 				method: "POST",
 				headers: {
@@ -35,16 +32,16 @@ const Login = () => {
 				}),
 			});
 
-			navigate("/dashboard");
+			const dataResponse = await response.json();
 
 			if (!response.ok) {
-				const errorData = await response.json();
-				throw new Error(errorData.message || "Login failed");
+				throw new Error(dataResponse.message || "Login failed");
 			}
 
-			const dataResponse = await response.json();
 			localStorage.setItem("token", dataResponse.token);
 			localStorage.setItem("userId", dataResponse.user.id);
+
+			navigate("/dashboard");
 		} catch (error) {
 			setGeneralError(error.message || "Failed to login. Please try again.");
 		}
@@ -93,10 +90,10 @@ const Login = () => {
 						<input type="checkbox" className="rounded border-gray-600 text-primary-500 focus:ring-primary-500" />
 						<span className="ml-2 text-gray-300">Remember me</span>
 					</label>
-					{/*
+
 					<a href="#" className="text-primary-500 hover:text-primary-400 transition-colors">
 						Forgot password?
-					</a> */}
+					</a>
 				</div>
 
 				<Button type="submit" variant="primary" fullWidth isLoading={isSubmitting} className="mt-6">

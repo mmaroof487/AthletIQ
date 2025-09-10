@@ -1,25 +1,12 @@
-import client from "../db/client.js";
 import bcrypt from "bcryptjs";
-import jwt from "jsonwebtoken";
-
-const JWT_SECRET = process.env.JWT_SECRET;
-
-const createToken = (user) => {
-	return jwt.sign({ id: user.id, email: user.email }, JWT_SECRET, { expiresIn: "7d" });
-};
+import client from "../config/db.js";
+import { createToken } from "../utils/jwt.js";
 
 export const register = async (req, res) => {
 	const { email, password } = req.body;
-
-	if (!email || !password) {
-		return res.status(400).json({ message: "Email and password are required" });
-	}
-
 	try {
 		const existing = await client.query("SELECT * FROM member WHERE email = $1", [email]);
-		if (existing.rows.length > 0) {
-			return res.status(400).json({ message: "Email already exists" });
-		}
+		if (existing.rows.length > 0) return res.status(400).json({ message: "Email already exists" });
 
 		const hashedPassword = await bcrypt.hash(password, 10);
 		const result = await client.query("INSERT INTO member (email, password) VALUES ($1, $2) RETURNING *", [email, hashedPassword]);
@@ -34,24 +21,13 @@ export const register = async (req, res) => {
 
 export const login = async (req, res) => {
 	const { email, password } = req.body;
-
-	if (!email || !password) {
-		return res.status(400).json({ message: "Email and password are required" });
-	}
-
 	try {
 		const result = await client.query("SELECT * FROM member WHERE email = $1", [email]);
-
-		if (result.rows.length === 0) {
-			return res.status(400).json({ message: "Invalid credentials" });
-		}
+		if (result.rows.length === 0) return res.status(400).json({ message: "Invalid credentials" });
 
 		const user = result.rows[0];
 		const isMatch = await bcrypt.compare(password, user.password);
-
-		if (!isMatch) {
-			return res.status(400).json({ message: "Invalid credentials" });
-		}
+		if (!isMatch) return res.status(400).json({ message: "Invalid credentials" });
 
 		const token = createToken(user);
 		res.status(200).json({ token, user });
