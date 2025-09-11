@@ -18,9 +18,37 @@ export const getDashboard = async (req, res) => {
     `;
 		const mealsResult = await client.query(mealsQuery, [userId, currentDate]);
 
+		const weightQuery = `
+      SELECT weight, date
+      FROM bodymeasurement
+      WHERE user_id = $1
+      ORDER BY date DESC
+      LIMIT 5
+    `;
+		const weightResult = await client.query(weightQuery, [userId]);
+
+		const calorieQuery = `
+      SELECT date, SUM(calories) AS total_calories
+      FROM meals
+      WHERE user_id = $1
+      GROUP BY date
+      ORDER BY date DESC
+      LIMIT 5
+    `;
+		const calorieResult = await client.query(calorieQuery, [userId]);
+
 		res.json({
-			bodyMeasurement: bodyMeasurementResult.rows[0],
-			totalCalories: mealsResult.rows[0].total_calories || 0,
+			bodyMeasurement: bodyMeasurementResult.rows[0], // leave as-is
+			totalCalories: mealsResult.rows[0].total_calories || 0, // leave as-is
+
+			weightHistory: weightResult.rows.map((row) => ({
+				date: row.date,
+				value: row.weight,
+			})),
+			calorieHistory: calorieResult.rows.map((row) => ({
+				date: row.date,
+				value: Number(row.total_calories) || 0,
+			})),
 		});
 	} catch (err) {
 		console.error("Error fetching user dashboard:", err);
