@@ -1,19 +1,10 @@
-import React, { useState, useEffect } from "react";
-import { motion } from "framer-motion";
-import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, AreaChart, Area } from "recharts";
-import Card from "@/components/ui/Card";
-import Button from "@/components/ui/Button";
-import Input from "@/components/ui/Input";
+import { useState, useEffect } from "react";
+import Calories from "./components/calories";
+import Weights from "./components/weight";
 
 const FitnessTracker = () => {
-	const [fitnessData, setFitnessData] = useState(null);
 	const [loading, setLoading] = useState(true);
 	const [activeTab, setActiveTab] = useState("calories");
-	const [showAddCalories, setShowAddCalories] = useState(false);
-	const [showAddWeight, setShowAddWeight] = useState(false);
-	const [newWeight, setNewWeight] = useState("");
-	const [newCalories, setNewCalories] = useState("");
-	const [foodName, setFoodName] = useState("");
 	const [data, setData] = useState();
 	const clientUrl = import.meta.env.VITE_CLIENT_URL;
 
@@ -23,9 +14,7 @@ const FitnessTracker = () => {
 
 	const fetchUserProfile = async () => {
 		try {
-			const data2 = await api.getFitnessData();
 			const userId = localStorage.getItem("userId");
-			setLoading(false);
 			const token = localStorage.getItem("token");
 			const response = await fetch(`${clientUrl}/user/dashboard/${userId}`, {
 				method: "GET",
@@ -34,93 +23,28 @@ const FitnessTracker = () => {
 					Authorization: `Bearer ${token}`,
 				},
 			});
-
 			const data = await response.json();
+			setLoading(false);
 			if (!response.ok) {
 				throw new Error("Failed to fetch user data");
 			}
 			setData(data);
-			setFitnessData(data2);
 		} catch (err) {
 			console.error(err.message || "Failed to fetch user profile");
 		}
 	};
 
-	const handleAddWeight = async () => {
-		if (!newWeight || isNaN(Number(newWeight))) return;
-
-		const today = new Date().toISOString().split("T")[0];
-
-		try {
-			const userId = localStorage.getItem("userId");
-			const response = await fetch(`${clientUrl}/fitness/weight`, {
-				method: "POST",
-				headers: { "Content-Type": "application/json" },
-				body: JSON.stringify({ userId, date: today, weight: Number(newWeight) }),
-			});
-
-			if (!response.ok) throw new Error("Failed to add weight entry");
-
-			setFitnessData((prev) => {
-				if (!prev) return prev;
-				return {
-					...prev,
-					weight: [...prev.weight, { date: today, value: Number(newWeight) }],
-				};
-			});
-			window.location.reload();
-			setNewWeight("");
-			setShowAddWeight(false);
-		} catch (error) {
-			console.error("Error adding weight entry:", error.message);
-		}
+	const weightStats = {
+		current: data?.bodyMeasurement?.weight || 0,
+		change: data?.bodyMeasurement?.weightchange || 0,
+		start: data?.bodyMeasurement?.startingweight || 0,
 	};
 
-	const handleAddCalories = async () => {
-		if (!newCalories || isNaN(Number(newCalories)) || !foodName) return;
-
-		const today = new Date().toISOString().split("T")[0];
-
-		try {
-			const userId = localStorage.getItem("userId");
-
-			const response = await fetch(`${clientUrl}/fitness/calories`, {
-				method: "POST",
-				headers: { "Content-Type": "application/json" },
-				body: JSON.stringify({ userId, date: today, calories: Number(newCalories), food: foodName }),
-			});
-
-			if (!response.ok) throw new Error("Failed to add calorie entry");
-
-			setFitnessData((prev) => {
-				if (!prev) return prev;
-				return {
-					...prev,
-					calories: [...prev.calories, { date: today, value: Number(newCalories), food: foodName }],
-				};
-			});
-			window.location.reload();
-			setNewCalories("");
-			setFoodName("");
-			setShowAddCalories(false);
-		} catch (error) {
-			console.error("Error adding calorie entry:", error.message);
-		}
+	const caloriesStats = {
+		average: data?.bodyMeasurement?.calorieintake || 0,
+		total: data?.totalCalories || 0,
+		highest: data?.calorieHistory.length ? Math.max(...data.calorieHistory.map((day) => day.value)) : 0,
 	};
-
-	const weightStats = fitnessData?.weight.length
-		? {
-				current: fitnessData.weight[fitnessData.weight.length - 1].value,
-				change: fitnessData.weight[fitnessData.weight.length - 1].value - fitnessData.weight[0].value,
-				start: fitnessData.weight[0].value,
-		  }
-		: null;
-
-	const caloriesStats = fitnessData?.calories.length
-		? {
-				highest: Math.max(...fitnessData.calories.map((day) => day.value)),
-		  }
-		: null;
 
 	if (loading) {
 		return (
@@ -129,7 +53,14 @@ const FitnessTracker = () => {
 			</div>
 		);
 	}
-
+	const historyWeight = data?.weightHistory || [];
+	const historyCalorie = data?.calorieHistory || [];
+	const weights = historyWeight.map((item) => item.value);
+	const minWeight = Math.min(...weights) - 5 || 0;
+	const maxWeight = Math.max(...weights) + 5 || 100;
+	const calories = historyCalorie.map((item) => item.value);
+	const minCalorie = Math.min(...calories) - 100 || 0;
+	const maxCalorie = Math.max(...calories) + 500 || 3000;
 	return (
 		<div className="space-y-6">
 			<div className="flex flex-col md:flex-row justify-between items-start md:items-center">
@@ -153,132 +84,9 @@ const FitnessTracker = () => {
 				))}
 			</div>
 
-			{activeTab === "calories" && (
-				<div className="space-y-6">
-					<div className="flex justify-between items-center">
-						<h2 className="heading-2">Calorie Tracking</h2>
-						<Button variant="secondary" size="sm" onClick={() => setShowAddCalories(!showAddCalories)}>
-							Add Entry
-						</Button>
-					</div>
+			{activeTab === "calories" && <Calories caloriesStats={caloriesStats} historyCalorie={historyCalorie} minCalorie={minCalorie} maxCalorie={maxCalorie} clientUrl={clientUrl} />}
 
-					{showAddCalories && (
-						<motion.div initial={{ opacity: 0, height: 0 }} animate={{ opacity: 1, height: "auto" }} className="bg-dark-800 rounded-lg p-4 border border-dark-700">
-							<div className="flex flex-col md:flex-row items-end gap-4">
-								<div className="flex-grow">
-									<Input label="Calories Consumed" type="number" value={newCalories} onChange={(e) => setNewCalories(e.target.value)} placeholder="Enter calories consumed" />
-								</div>
-								<div className="flex-grow">
-									<Input label="Food Name" type="text" value={foodName} onChange={(e) => setFoodName(e.target.value)} placeholder="Enter food name" />
-								</div>
-								<div className="flex space-x-2">
-									<Button variant="secondary" onClick={() => setShowAddCalories(false)}>
-										Cancel
-									</Button>
-									<Button variant="primary" onClick={handleAddCalories}>
-										Save
-									</Button>
-								</div>
-							</div>
-						</motion.div>
-					)}
-
-					<div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-						{caloriesStats && (
-							<>
-								<Card>
-									<p className="text-gray-400 text-sm">Average Daily</p>
-									<p className="text-2xl font-bold">{data.bodyMeasurement.calorieintake || "0"} cal</p>
-								</Card>
-								<Card>
-									<p className="text-gray-400 text-sm">Total Today</p>
-									<p className="text-2xl font-bold">{data.totalCalories} cal</p>
-								</Card>
-								<Card>
-									<p className="text-gray-400 text-sm">Highest Day</p>
-									<p className="text-2xl font-bold">{caloriesStats.highest} cal</p>
-								</Card>
-							</>
-						)}
-					</div>
-
-					<Card>
-						<div className="h-80">
-							<ResponsiveContainer width="100%" height="100%">
-								<LineChart data={fitnessData?.calories}>
-									<CartesianGrid strokeDasharray="3 3" stroke="#333" />
-									<XAxis dataKey="date" tick={{ fill: "#ccc" }} />
-									<YAxis tick={{ fill: "#ccc" }} />
-									<Tooltip contentStyle={{ backgroundColor: "#1e1e1e", border: "none" }} />
-									<Line type="monotone" dataKey="value" stroke="#FF6B00" strokeWidth={3} />
-								</LineChart>
-							</ResponsiveContainer>
-						</div>
-					</Card>
-				</div>
-			)}
-
-			{activeTab === "weight" && (
-				<div className="space-y-6">
-					<div className="flex justify-between items-center">
-						<h2 className="heading-2">Weight Tracking</h2>
-						<Button variant="secondary" size="sm" onClick={() => setShowAddWeight(!showAddWeight)}>
-							Add Entry
-						</Button>
-					</div>
-
-					{showAddWeight && (
-						<motion.div initial={{ opacity: 0, height: 0 }} animate={{ opacity: 1, height: "auto" }} className="bg-dark-800 rounded-lg p-4 border border-dark-700">
-							<div className="flex flex-col md:flex-row items-end gap-4">
-								<div className="flex-grow">
-									<Input label="Weight (kg)" type="number" value={newWeight} onChange={(e) => setNewWeight(e.target.value)} placeholder="Enter your weight" />
-								</div>
-								<div className="flex space-x-2">
-									<Button variant="secondary" onClick={() => setShowAddWeight(false)}>
-										Cancel
-									</Button>
-									<Button variant="primary" onClick={handleAddWeight}>
-										Save
-									</Button>
-								</div>
-							</div>
-						</motion.div>
-					)}
-
-					<div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-						{weightStats && (
-							<>
-								<Card>
-									<p className="text-gray-400 text-sm">Current Weight</p>
-									<p className="text-2xl font-bold">{data.bodyMeasurement.weight} kg</p>
-								</Card>
-								<Card>
-									<p className="text-gray-400 text-sm">Weight Change</p>
-									<p className="text-2xl font-bold">{data.bodyMeasurement.weightchange} kg</p>
-								</Card>
-								<Card>
-									<p className="text-gray-400 text-sm">Starting Weight</p>
-									<p className="text-2xl font-bold">{weightStats.start} kg</p>
-								</Card>
-							</>
-						)}
-					</div>
-
-					<Card>
-						<div className="h-80">
-							<ResponsiveContainer width="100%" height="100%">
-								<AreaChart data={fitnessData?.weight}>
-									<CartesianGrid strokeDasharray="3 3" stroke="#333" />
-									<XAxis dataKey="date" tick={{ fill: "#ccc" }} />
-									<YAxis tick={{ fill: "#ccc" }} />
-									<Tooltip contentStyle={{ backgroundColor: "#1e1e1e", border: "none" }} />
-									<Area type="monotone" dataKey="value" stroke="#FF6B00" fillOpacity={1} fill="url(#weightGradient)" />
-								</AreaChart>
-							</ResponsiveContainer>
-						</div>
-					</Card>
-				</div>
-			)}
+			{activeTab === "weight" && <Weights weightStats={weightStats} historyWeight={historyWeight} minWeight={minWeight} maxWeight={maxWeight} clientUrl={clientUrl} />}
 		</div>
 	);
 };

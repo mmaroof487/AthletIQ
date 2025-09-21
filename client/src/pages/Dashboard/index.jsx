@@ -46,7 +46,7 @@ const Dashboard = ({ user }) => {
 				historyCalorie: data.calorieHistory,
 				cal: data.totalCalories,
 				data: data.bodyMeasurement,
-				fitnessData: data2,
+				fitnessData: data2, //!delete after workout
 			}));
 
 			setLoading(false);
@@ -64,6 +64,7 @@ const Dashboard = ({ user }) => {
 	}
 
 	const workoutStats = {
+		//!del
 		totalDuration: fitness.fitnessData?.workouts.reduce((total, workout) => total + workout.duration, 0) || 0,
 		avgDuration: fitness.fitnessData?.workouts.length ? Math.round(fitness.fitnessData.workouts.reduce((total, workout) => total + workout.duration, 0) / fitness.fitnessData.workouts.length) : 0,
 		workoutsByType:
