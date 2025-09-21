@@ -1,55 +1,76 @@
 import client from "../config/db.js";
 
+function calculateCalories(weight, height, age, gender, activityFactor = 1.2) {
+	let bmr;
+	if (gender === "male") {
+		bmr = 10 * weight + 6.25 * height - 5 * age + 5;
+	} else {
+		bmr = 10 * weight + 6.25 * height - 5 * age - 161;
+	}
+
+	const calories = Math.round(bmr * activityFactor);
+	return calories;
+}
+
 export const addWeight = async (req, res) => {
 	const { userId, date, weight } = req.body;
+	console.log(req.body);
 
 	if (!userId || !date || !weight || isNaN(weight)) {
 		return res.status(400).json({ error: "Invalid data provided" });
 	}
 
 	try {
-		const userQuery = "SELECT * FROM member WHERE id = $1";
-		const userResult = await client.query(userQuery, [userId]);
-
+		const userResult = await client.query("SELECT id FROM member WHERE id = $1", [userId]);
 		if (userResult.rows.length === 0) {
 			return res.status(404).json({ error: "User not found" });
 		}
 
-		const prevWeightQuery = "SELECT weight FROM bodymeasurement WHERE user_id = $1 ORDER BY date DESC LIMIT 1";
-		const prevWeightResult = await client.query(prevWeightQuery, [userId]);
+		const existingResult = await client.query("SELECT * FROM bodymeasurement WHERE user_id = $1", [userId]);
 
-		let weightChange = 0;
+		let startingWeight, weightChange, calorieIntake;
+		const user = existingResult.rows[0];
+		const height = user.height;
+		const gender = user.gender;
+		calorieIntake = calculateCalories(weight, height, gender);
 
-		if (prevWeightResult.rows.length > 0) {
-			const previousWeight = prevWeightResult.rows[0].weight;
-			weightChange = weight - previousWeight;
-		}
+		if (existingResult.rows.length === 0) {
+			startingWeight = weight;
+			weightChange = 0;
 
-		const checkRecordQuery = "SELECT * FROM bodymeasurement WHERE user_id = $1 AND date = $2";
-		const checkRecordResult = await client.query(checkRecordQuery, [userId, date]);
-
-		let result;
-		if (checkRecordResult.rows.length > 0) {
-			const updateQuery = `
-                UPDATE bodymeasurement
-                SET weight = $1, weightchange = $2
-                WHERE user_id = $3 AND date = $4
-                RETURNING *`;
-
-			result = await client.query(updateQuery, [weight, weightChange, userId, date]);
-		} else {
 			const insertQuery = `
-                INSERT INTO bodymeasurement (user_id, date, weight, weight_change)
-                VALUES ($1, $2, $3, $4)
-                RETURNING *`;
+				INSERT INTO bodymeasurement (user_id, date, weight, startingweight, weightchange, calorieintake, height)
+				VALUES ($1, $2, $3, $4, $5, $6, $7)
+				RETURNING *;
+			`;
 
-			result = await client.query(insertQuery, [userId, date, weight, weightChange]);
+			const result = await client.query(insertQuery, [userId, date, weight, startingWeight, weightChange, calorieIntake, height]);
+
+			return res.status(201).json(result.rows[0]);
+		} else {
+			const existing = existingResult.rows[0];
+			startingWeight = existing.startingweight || existing.weight;
+			weightChange = weight - startingWeight;
+
+			const updateQuery = `
+				UPDATE bodymeasurement
+				SET date = $1, weight = $2, weightchange = $3, calorieintake = $4
+				WHERE user_id = $5
+				RETURNING *;
+			`;
+
+			const result = await client.query(updateQuery, [date, weight, weightChange, calorieIntake, userId]);
 		}
 
-		return res.status(201).json(result.rows[0]);
+		const historyWeight = await client.query("INSERT INTO weight_history (user_id, date, weight) VALUES ($1, $2, $3) RETURNING *", [userId, date, weight]);
+		return res.status(200).json({
+			message: "Weight updated successfully",
+			current: { weight, weightChange, calorieIntake, startingWeight },
+			historyEntry: historyWeight.rows[0],
+		});
 	} catch (err) {
 		console.error("Error updating weight entry:", err);
-		res.status(500).json({ error: "Internal Server Error" });
+		return res.status(500).json({ error: "Could not update weight" });
 	}
 };
 

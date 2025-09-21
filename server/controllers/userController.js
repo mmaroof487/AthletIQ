@@ -2,53 +2,53 @@ import client from "../config/db.js";
 
 export const getDashboard = async (req, res) => {
 	const { userId } = req.params;
+
 	try {
-		const bodyMeasurementQuery = "SELECT * FROM bodymeasurement WHERE user_id = $1";
-		const bodyMeasurementResult = await client.query(bodyMeasurementQuery, [userId]);
+		// Body measurements
+		const bodyMeasurementResult = await client.query("SELECT * FROM bodymeasurement WHERE user_id = $1", [userId]);
 
 		if (bodyMeasurementResult.rows.length === 0) {
 			return res.status(404).json({ error: "User not found" });
 		}
 
+		const bodyMeasurement = bodyMeasurementResult.rows.sort((a, b) => new Date(b.date) - new Date(a.date))[0];
+
 		const currentDate = new Date().toISOString().split("T")[0];
-		const mealsQuery = `
-      SELECT SUM(calories) AS total_calories
-      FROM meals
-      WHERE user_id = $1 AND date = $2
-    `;
-		const mealsResult = await client.query(mealsQuery, [userId, currentDate]);
 
-		const weightQuery = `
-      SELECT weight, date
-      FROM bodymeasurement
-      WHERE user_id = $1
-      ORDER BY date DESC
-      LIMIT 5
-    `;
-		const weightResult = await client.query(weightQuery, [userId]);
+		// Today's total calories
+		const mealsResult = await client.query(
+			`SELECT COALESCE(SUM(calories),0) AS total_calories
+       FROM meals
+       WHERE user_id = $1 AND date = $2`,
+			[userId, currentDate]
+		);
 
-		const calorieQuery = `
-      SELECT date, SUM(calories) AS total_calories
-      FROM meals
-      WHERE user_id = $1
-      GROUP BY date
-      ORDER BY date DESC
-      LIMIT 5
-    `;
-		const calorieResult = await client.query(calorieQuery, [userId]);
+		// Last 5 weight entries
+		const weightResult = await client.query(
+			`SELECT weight, date
+       		FROM weight_history
+       		WHERE user_id = $1
+       		ORDER BY date DESC
+       		LIMIT 5`,
+			[userId]
+		);
+
+		// Last 5 calorie totals
+		const calorieResult = await client.query(
+			`SELECT date, SUM(calories) AS total_calories
+       FROM meals
+       WHERE user_id = $1
+       GROUP BY date
+       ORDER BY date DESC
+       LIMIT 5`,
+			[userId]
+		);
 
 		res.json({
-			bodyMeasurement: bodyMeasurementResult.rows[0], // leave as-is
-			totalCalories: mealsResult.rows[0].total_calories || 0, // leave as-is
-
-			weightHistory: weightResult.rows.map((row) => ({
-				date: row.date,
-				value: row.weight,
-			})),
-			calorieHistory: calorieResult.rows.map((row) => ({
-				date: row.date,
-				value: Number(row.total_calories) || 0,
-			})),
+			bodyMeasurement,
+			totalCalories: mealsResult.rows[0].total_calories,
+			weightHistory: weightResult.rows.reverse().map((row) => ({ date: row.date, value: row.weight })),
+			calorieHistory: calorieResult.rows.reverse().map((row) => ({ date: row.date, value: Number(row.total_calories) })),
 		});
 	} catch (err) {
 		console.error("Error fetching user dashboard:", err);
