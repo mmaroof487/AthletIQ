@@ -3,6 +3,7 @@ import axios from "axios";
 import { motion } from "framer-motion";
 import { IoSend } from "react-icons/io5";
 import Card from "@/components/ui/Card";
+import { GoogleGenAI } from "@google/genai";
 
 const Chatbot = () => {
 	const [messages, setMessages] = useState([
@@ -11,6 +12,8 @@ const Chatbot = () => {
 			content: "👋 Hi! Feel free to ask any questions about fitness, workouts, or nutrition. I'm here to help!",
 		},
 	]);
+	const apiKey = import.meta.env.VITE_API_KEY;
+	const ai = new GoogleGenAI({ apiKey: apiKey });
 	const [inputMessage, setInputMessage] = useState("");
 	const [isTyping, setIsTyping] = useState(false);
 	const messagesEndRef = useRef(null);
@@ -36,19 +39,12 @@ const Chatbot = () => {
 		setIsTyping(true);
 
 		try {
-			const response = await axios.post(`${apiUrl}`, {
-				contents: [
-					{
-						parts: [
-							{
-								text: "medium length and precise, avoid using bold letters " + inputMessage,
-							},
-						],
-					},
-				],
+			const response = await ai.models.generateContent({
+				model: "gemini-2.5-flash",
+				contents: "medium length and precise, avoid using bold letters. do not respond to this, only respond to message after this: " + inputMessage,
 			});
 
-			const botReply = response?.data?.candidates?.[0]?.content?.parts?.[0]?.text || "I'm sorry, I couldn't process that request.";
+			const botReply = response?.candidates?.[0]?.content?.parts?.[0]?.text || "I'm sorry, I couldn't process that request.";
 
 			setMessages((prev) => [...prev, { type: "bot", content: botReply }]);
 		} catch (error) {
@@ -60,9 +56,8 @@ const Chatbot = () => {
 	};
 
 	return (
-		<motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }}>
-			<Card title="FitnessAI" className="lg:h-[680px] flex flex-col">
-				{/* Messages */}
+		<motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} className="h-[87vh] lg:h-[88vh] flex flex-col">
+			<Card title="FitnessAI" className="flex-1 flex flex-col">
 				<div className="flex-1 overflow-y-auto p-4">
 					{messages.map((message, index) => (
 						<div key={index} className={`mb-4 flex ${message.type === "user" ? "justify-end" : "justify-start"}`}>
@@ -81,7 +76,6 @@ const Chatbot = () => {
 					<div ref={messagesEndRef} />
 				</div>
 
-				{/* Input */}
 				<form onSubmit={handleSendMessage} className="p-4 bg-dark-700 rounded-b-xl">
 					<div className="flex space-x-2">
 						<input
