@@ -5,6 +5,7 @@ import Card from "@/components/ui/Card";
 import Button from "@/components/ui/Button";
 import Input from "@/components/ui/Input";
 import { Scale, Zap, Plus, X } from "lucide-react";
+import { GoogleGenAI } from "@google/genai";
 
 const Calories = ({ caloriesStats, historyCalorie, minCalorie, maxCalorie, clientUrl }) => {
 	const [showAddCalories, setShowAddCalories] = useState(false);
@@ -12,6 +13,27 @@ const Calories = ({ caloriesStats, historyCalorie, minCalorie, maxCalorie, clien
 	const [foodWeight, setFoodWeight] = useState("");
 	const [newCalories, setNewCalories] = useState("");
 	const [foodName, setFoodName] = useState("");
+	const [loading, setLoading] = useState(false);
+	const apiKey = import.meta.env.VITE_API_KEY;
+	const ai = new GoogleGenAI({ apiKey: apiKey });
+
+	const handleCalculateCalories = async () => {
+		setLoading(true);
+		try {
+			const response = await ai.models.generateContent({
+				model: "gemini-2.5-flash",
+				contents: "calories for these, just return calories number nothing else: " + foodName + " " + foodWeight + " grams/ml",
+			});
+
+			const botReply = response?.candidates?.[0]?.content?.parts?.[0]?.text || "I'm sorry, I couldn't process that request.";
+
+			setNewCalories(botReply);
+			setUseWeightOption(false);
+			setLoading(false);
+		} catch (error) {
+			console.error("API Error:", error);
+		}
+	};
 
 	const handleAddCalories = async () => {
 		if (!newCalories || isNaN(Number(newCalories)) || !foodName) return;
@@ -52,10 +74,7 @@ const Calories = ({ caloriesStats, historyCalorie, minCalorie, maxCalorie, clien
 			{showAddCalories && (
 				<motion.div initial={{ opacity: 0, height: 0, y: -20 }} animate={{ opacity: 1, height: "auto", y: 0 }} exit={{ opacity: 0, height: 0, y: -20 }} transition={{ duration: 0.3, ease: "easeInOut" }}>
 					<Card>
-						<button
-							onClick={() => setShowAddCalories(false)}
-							className="absolute top-4 right-4 p-2 text-gray-400 hover:text-white
-               hover:bg-gray-800/50 rounded-lg transition-all duration-200">
+						<button onClick={() => setShowAddCalories(false)} className="absolute top-4 right-4 p-2 text-gray-400 hover:text-white hover:bg-dark-800/50 rounded-lg transition-all duration-200">
 							<X size={20} />
 						</button>
 
@@ -65,47 +84,61 @@ const Calories = ({ caloriesStats, historyCalorie, minCalorie, maxCalorie, clien
 								Add Food Entry
 							</h3>
 						</div>
-
-						<div className="flex items-center gap-2 mb-6 p-1 bg-gray-800/60 rounded-xl border border-gray-700/50">
-							<motion.button
-								whileTap={{ scale: 0.98 }}
-								onClick={() => setUseWeightOption(false)}
-								className={`flex-1 flex items-center justify-center gap-2 px-4 py-3 rounded-lg font-medium transition-all duration-200 ${
-									!useWeightOption ? "bg-gradient-to-r from-orange-600 to-orange-700 text-white shadow-lg" : "text-gray-300 hover:text-white hover:bg-gray-700/50"
-								}`}>
-								<Zap size={18} />
-								Name & Calories
-							</motion.button>
-							<motion.button
-								whileTap={{ scale: 0.98 }}
-								onClick={() => setUseWeightOption(true)}
-								className={`flex-1 flex items-center justify-center gap-2 px-4 py-3 rounded-lg font-medium transition-all duration-200 ${
-									useWeightOption ? "bg-gradient-to-r from-orange-600 to-orange-700 text-white shadow-lg" : "text-gray-300 hover:text-white hover:bg-gray-700/50"
-								}`}>
-								<Scale size={18} />
-								Name & Weight
-							</motion.button>
-						</div>
-
 						<div className="space-y-5">
-							<Input label="Food Name" type="text" value={foodName} onChange={(e) => setFoodName(e.target.value)} placeholder="Enter food name (e.g., Grilled Chicken)" />
+							<Input label="Food Name" type="text" value={foodName} onChange={(e) => setFoodName(e.target.value)} placeholder="Enter food name" />
+							{!loading ? (
+								<>
+									<div className="flex items-center gap-2 mb-6 p-1 bg-dark-700/60 rounded-xl border border-gray-700/50 w-1/2">
+										<motion.button
+											whileTap={{ scale: 0.98 }}
+											onClick={() => setUseWeightOption(false)}
+											className={`flex-1 flex items-center justify-center gap-2 px-4 py-3 rounded-lg font-medium transition-all duration-200 ${
+												!useWeightOption ? "bg-orange-500 text-white shadow-lg" : "text-gray-300 hover:text-white hover:bg-dark-700/50"
+											}`}>
+											<Zap size={18} />
+											Calories
+										</motion.button>
+										<motion.button
+											whileTap={{ scale: 0.98 }}
+											onClick={() => setUseWeightOption(true)}
+											className={`flex-1 flex items-center justify-center gap-2 px-4 py-3 rounded-lg font-medium transition-all duration-200 ${
+												useWeightOption ? "bg-orange-500 text-white shadow-lg" : "text-gray-300 hover:text-white hover:bg-dark-700/50"
+											}`}>
+											<Scale size={18} />
+											Weight
+										</motion.button>
+									</div>
 
-							<motion.div key={useWeightOption ? "weight" : "calories"} initial={{ opacity: 0, x: 20 }} animate={{ opacity: 1, x: 0 }} transition={{ duration: 0.2 }}>
-								{!useWeightOption ? (
-									<Input label="Calories Consumed" type="number" value={newCalories} onChange={(e) => setNewCalories(e.target.value)} placeholder="Enter calories consumed (e.g., 250)" />
-								) : (
-									<Input label="Weight (grams)" type="number" value={foodWeight} onChange={(e) => setFoodWeight(e.target.value)} placeholder="Enter weight of food (e.g., 100)" />
-								)}
-							</motion.div>
-						</div>
+									<motion.div key={useWeightOption ? "weight" : "calories"} initial={{ opacity: 0, x: 20 }} animate={{ opacity: 1, x: 0 }} transition={{ duration: 0.2 }}>
+										{!useWeightOption ? (
+											<Input label="Calories Consumed" type="number" value={newCalories} onChange={(e) => setNewCalories(e.target.value)} placeholder="Enter calories consumed" />
+										) : (
+											<Input label="Weight (grams/ml)" type="number" value={foodWeight} onChange={(e) => setFoodWeight(e.target.value)} placeholder="Enter weight of food" />
+										)}
+									</motion.div>
 
-						<div className="flex flex-col sm:flex-row gap-3 mt-8 pt-6 border-t border-gray-700/50">
-							<Button variant="secondary" onClick={() => setShowAddCalories(false)} className="flex-1 sm:flex-none sm:px-8 bg-gray-700 text-white hover:bg-gray-600">
-								Cancel
-							</Button>
-							<Button variant="primary" onClick={handleAddCalories} className="flex-1 sm:flex-none sm:px-8 bg-orange-500 text-black hover:bg-orange-600">
-								Save Entry
-							</Button>
+									<div className="flex flex-col sm:flex-row gap-3 mt-8 pt-6 border-t border-dark-700/50">
+										<Button variant="secondary" onClick={() => setShowAddCalories(false)} className="flex-1 sm:flex-none sm:px-8 bg-dark-700 text-white hover:bg-dark-600">
+											Cancel
+										</Button>
+										{!useWeightOption ? (
+											<Button variant="primary" onClick={handleAddCalories} className="flex-1 sm:flex-none sm:px-8 bg-orange-500 text-black hover:bg-orange-600">
+												Log Entry
+											</Button>
+										) : (
+											<Button variant="primary" onClick={handleCalculateCalories} className="flex-1 sm:flex-none sm:px-8 bg-orange-500 text-black hover:bg-orange-600">
+												Calculate
+											</Button>
+										)}
+									</div>
+								</>
+							) : (
+								<>
+									<div className="h-full w-full flex items-center justify-center">
+										<div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-primary-500"></div>
+									</div>
+								</>
+							)}
 						</div>
 					</Card>
 				</motion.div>

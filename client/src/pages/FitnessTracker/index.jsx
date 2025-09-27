@@ -24,11 +24,11 @@ const FitnessTracker = () => {
 				},
 			});
 			const data = await response.json();
-			setLoading(false);
 			if (!response.ok) {
 				throw new Error("Failed to fetch user data");
 			}
 			setData(data);
+			setLoading(false);
 		} catch (err) {
 			console.error(err.message || "Failed to fetch user profile");
 		}
@@ -54,10 +54,10 @@ const FitnessTracker = () => {
 		);
 	}
 	const historyWeight = data?.weightHistory || [];
-	const historyCalorie = data?.calorieHistory || [];
 	const weights = historyWeight.map((item) => item.value);
 	const minWeight = Math.min(...weights) - 5 || 0;
 	const maxWeight = Math.max(...weights) + 5 || 100;
+	const historyCalorie = data?.calorieHistory || [];
 	const calories = historyCalorie.map((item) => item.value);
 	const minCalorie = Math.min(...calories) - 100 || 0;
 	const maxCalorie = Math.max(...calories) + 500 || 3000;

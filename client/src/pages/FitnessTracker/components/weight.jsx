@@ -12,7 +12,6 @@ const Weight = ({ weightStats, historyWeight, minWeight, maxWeight, clientUrl })
 
 	const handleAddWeight = async () => {
 		if (!newWeight || isNaN(Number(newWeight))) return;
-		const today = new Date().toISOString();
 
 		try {
 			const userId = localStorage.getItem("userId");
@@ -20,7 +19,7 @@ const Weight = ({ weightStats, historyWeight, minWeight, maxWeight, clientUrl })
 			const response = await fetch(`${clientUrl}/fitness/weight`, {
 				method: "POST",
 				headers: { "Content-Type": "application/json", Authorization: `Bearer ${token}` },
-				body: JSON.stringify({ userId, date: today, weight: Number(newWeight) }),
+				body: JSON.stringify({ userId, weight: Number(newWeight) }),
 			});
 
 			if (!response.ok) throw new Error("Failed to add weight entry");
@@ -58,12 +57,12 @@ const Weight = ({ weightStats, historyWeight, minWeight, maxWeight, clientUrl })
 							<p className="text-gray-400 text-sm">Log your current weight</p>
 						</div>
 
-						<div className="flex flex-col md:flex-row items-end gap-4">
-							<div className="flex-grow">
+						<div className="flex flex-col md:flex-row items-center gap-4">
+							<div className="flex-grow w-full">
 								<Input label="Weight (kg)" type="number" value={newWeight} onChange={(e) => setNewWeight(e.target.value)} placeholder="Enter your weight" />
 							</div>
-							<div className="flex space-x-2">
-								<Button variant="secondary" onClick={() => setShowAddWeight(false)} className="bg-gray-700 text-white hover:bg-gray-600">
+							<div className="flex space-x-2 pt-1">
+								<Button variant="secondary" onClick={() => setShowAddWeight(false)} className="bg-dark-700 text-white hover:bg-gray-600">
 									Cancel
 								</Button>
 								<Button variant="primary" onClick={handleAddWeight} className="bg-orange-500 text-black hover:bg-orange-600">
