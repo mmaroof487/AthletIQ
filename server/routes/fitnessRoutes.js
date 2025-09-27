@@ -5,6 +5,6 @@ const router = express.Router();
 
 router.post("/weight", addWeight);
 router.post("/calories", addCalories);
-router.get("/:userId", getMeals);
+router.get("/meals/:userId", getMeals);
 
 export default router;

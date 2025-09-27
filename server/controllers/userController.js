@@ -13,14 +13,14 @@ export const getDashboard = async (req, res) => {
 
 		const bodyMeasurement = bodyMeasurementResult.rows.sort((a, b) => new Date(b.date) - new Date(a.date))[0];
 
-		const currentDate = new Date().toISOString().split("T")[0];
+		const date = new Date().toISOString().split("T")[0];
 
 		// Today's total calories
 		const mealsResult = await client.query(
 			`SELECT COALESCE(SUM(calories),0) AS total_calories
        FROM meals
        WHERE user_id = $1 AND date = $2`,
-			[userId, currentDate]
+			[userId, date]
 		);
 
 		// Last 5 weight entries

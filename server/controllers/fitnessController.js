@@ -13,14 +13,13 @@ function calculateCalories(weight, height, age, gender, activityFactor = 1.2) {
 }
 
 export const addWeight = async (req, res) => {
-	const { userId, date, weight } = req.body;
-	console.log(req.body);
-
-	if (!userId || !date || !weight || isNaN(weight)) {
+	const { userId, weight } = req.body;
+	if (!userId || !weight || isNaN(weight)) {
 		return res.status(400).json({ error: "Invalid data provided" });
 	}
 
 	try {
+		const date = new Date().toISOString().split("T")[0];
 		const userResult = await client.query("SELECT id FROM member WHERE id = $1", [userId]);
 		if (userResult.rows.length === 0) {
 			return res.status(404).json({ error: "User not found" });
@@ -75,13 +74,14 @@ export const addWeight = async (req, res) => {
 };
 
 export const addCalories = async (req, res) => {
-	const { userId, date, calories, food } = req.body;
+	const { userId, calories, food } = req.body;
 
-	if (!userId || !date || !calories || !food || isNaN(calories)) {
+	if (!userId || !calories || !food || isNaN(calories)) {
 		return res.status(400).json({ error: "Invalid data provided" });
 	}
 
 	try {
+		const date = new Date().toISOString().split("T")[0];
 		const query = "INSERT INTO meals (user_id, date, calories, name) VALUES ($1, $2, $3, $4) RETURNING *";
 		const result = await client.query(query, [userId, date, calories, food]);
 
@@ -96,14 +96,13 @@ export const getMeals = async (req, res) => {
 	const userId = req.params.userId;
 
 	try {
-		const currentDate = new Date().toISOString().split("T")[0];
-
+		const date = new Date().toISOString().split("T")[0];
 		const mealsQuery = `
             SELECT *
             FROM meals
             WHERE user_id = $1 AND date = $2
         `;
-		const mealsResult = await client.query(mealsQuery, [userId, currentDate]);
+		const mealsResult = await client.query(mealsQuery, [userId, date]);
 
 		if (mealsResult.rows.length === 0) {
 			return res.status(404).json({ error: "No meals found for today" });
