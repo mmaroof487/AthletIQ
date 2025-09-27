@@ -1,4 +1,4 @@
-import AppRoutes from "@/routes"; // auto-imports routes/index.js
+import AppRoutes from "@/routes";
 
 function App() {
 	return <AppRoutes />;

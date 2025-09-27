@@ -39,44 +39,61 @@ const MainLayout = () => {
 				{/* Sidebar */}
 				<motion.nav
 					className={`
-            fixed top-0 left-0 z-30 h-screen w-64 pt-20 bg-dark-800 border-r border-dark-700
+            fixed top-0 left-0 z-30 h-screen w-64  bg-dark-800 border-r border-dark-700
             transform transition-transform duration-300 ease-in-out
             lg:translate-x-0 lg:static lg:h-auto lg:pt-0
             ${sidebarOpen ? "translate-x-0" : "-translate-x-full"}
           `}
 					initial={false}>
-					<div className="p-4 space-y-1">
-						{[
-							{ to: "/dashboard", label: "Dashboard", Icon: LayoutGrid },
-							{ to: "/fitness-tracker", label: "Fitness Tracker", Icon: BarChart2 },
-							{ to: "/workouts", label: "Workouts", Icon: Dumbbell },
-							{ to: "/nutrition", label: "Nutrition", Icon: Utensils },
-							{ to: "/profile", label: "Profile", Icon: User },
-							{ to: "/chatbot", label: "FitnessAI", Icon: BrainCircuit },
-							{ to: "/gym-management", label: "Gym Management", Icon: Users },
-						].map(({ to, label, Icon }) => (
-							<NavLink
-								key={to}
-								to={to}
-								className={({ isActive }) => `
+					<NavLink to="/dashboard" className="flex items-center lg:hidden p-8 mt-4">
+						<Flame size={28} className="text-primary-500 mr-2" />
+						<span className="text-xl font-bold">AthletIQ</span>
+					</NavLink>
+					<div className="p-4 space-y-1 flex flex-col justify-between ">
+						<div>
+							{[
+								{ to: "/dashboard", label: "Dashboard", Icon: LayoutGrid },
+								{ to: "/fitness-tracker", label: "Fitness Tracker", Icon: BarChart2 },
+								{ to: "/nutrition", label: "Nutrition", Icon: Utensils },
+								{ to: "/workouts", label: "Workouts", Icon: Dumbbell },
+								{ to: "/chatbot", label: "FitnessAI", Icon: BrainCircuit },
+								{ to: "/gym-management", label: "Gym Management", Icon: Users },
+							].map(({ to, label, Icon }) => (
+								<NavLink
+									key={to}
+									to={to}
+									className={({ isActive }) => `
                   flex items-center space-x-3 px-4 py-3 rounded-lg transition-colors
                   ${isActive ? "bg-primary-500 text-white" : "text-gray-300 hover:bg-dark-700"}
                 `}
-								onClick={closeSidebar}>
-								<Icon size={20} />
-								<span>{label}</span>
-							</NavLink>
-						))}
+									onClick={closeSidebar}>
+									<Icon size={20} />
+									<span>{label}</span>
+								</NavLink>
+							))}
+						</div>
 
-						<button onClick={handleLogout} className="w-full flex items-center space-x-3 px-4 py-3 rounded-lg transition-colors text-gray-300 hover:bg-dark-700">
-							<LogOut size={20} />
-							<span>Logout</span>
-						</button>
+						<div>
+							<NavLink
+								key="/profile"
+								to="/profile"
+								className={({ isActive }) => `flex items-center space-x-3 px-4 py-3 rounded-lg transition-colors
+                  ${isActive ? "bg-primary-500 text-white" : "text-gray-300 hover:bg-dark-700"}
+                `}
+								onClick={closeSidebar}>
+								<User size={20} />
+								<span>Profile</span>
+							</NavLink>
+							<button onClick={handleLogout} className="w-full flex items-center space-x-3 px-4 py-3 rounded-lg transition-colors text-gray-300 hover:bg-dark-700">
+								<LogOut size={20} />
+								<span>Logout</span>
+							</button>
+						</div>
 					</div>
 				</motion.nav>
 
 				{/* Main Content */}
-				<main className="flex-1 p-6 pt-4 pb-20 overflow-x-hidden">
+				<main className="flex-1 px-6 py-4 overflow-x-hidden">
 					<Outlet />
 				</main>
 			</div>
