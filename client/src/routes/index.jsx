@@ -1,4 +1,4 @@
-import { createBrowserRouter, RouterProvider } from "react-router-dom";
+import { createBrowserRouter, Navigate, RouterProvider } from "react-router-dom";
 
 import MainLayout from "@/layouts/MainLayout";
 import AuthLayout from "@/layouts/AuthLayout";
@@ -23,26 +23,83 @@ const router = createBrowserRouter([
 		children: [
 			{ path: "login", element: <Login /> },
 			{ path: "register", element: <Register /> },
+			{ index: true, element: <Navigate to="/login" replace /> },
 		],
 	},
+
 	{
 		path: "/",
 		element: <MainLayout />,
 		children: [
-			{ index: true, element: <PrivateRoute element={<Dashboard />} /> },
-			{ path: "dashboard", element: <PrivateRoute element={<Dashboard />} /> },
-			{ path: "profile", element: <PrivateRoute element={<Profile />} /> },
-			{ path: "fitness-tracker", element: <PrivateRoute element={<FitnessTracker />} /> },
-			{ path: "workouts", element: <PrivateRoute element={<Workouts />} /> },
-			{ path: "nutrition", element: <PrivateRoute element={<Nutrition />} /> },
-			{ path: "chatbot", element: <PrivateRoute element={<Chatbot />} /> },
-			{ path: "gym-management", element: <PrivateRoute element={<GymManagement />} /> },
+			{
+				index: true,
+				element: (
+					<PrivateRoute>
+						<Dashboard />
+					</PrivateRoute>
+				),
+			},
+			{
+				path: "dashboard",
+				element: (
+					<PrivateRoute>
+						<Dashboard />
+					</PrivateRoute>
+				),
+			},
+			{
+				path: "profile",
+				element: (
+					<PrivateRoute>
+						<Profile />
+					</PrivateRoute>
+				),
+			},
+			{
+				path: "fitness-tracker",
+				element: (
+					<PrivateRoute>
+						<FitnessTracker />
+					</PrivateRoute>
+				),
+			},
+			{
+				path: "workouts",
+				element: (
+					<PrivateRoute>
+						<Workouts />
+					</PrivateRoute>
+				),
+			},
+			{
+				path: "nutrition",
+				element: (
+					<PrivateRoute>
+						<Nutrition />
+					</PrivateRoute>
+				),
+			},
+			{
+				path: "chatbot",
+				element: (
+					<PrivateRoute>
+						<Chatbot />
+					</PrivateRoute>
+				),
+			},
+			{
+				path: "gym-management",
+				element: (
+					<PrivateRoute>
+						<GymManagement />
+					</PrivateRoute>
+				),
+			},
 		],
 	},
-	{
-		path: "*",
-		element: <NotFound />,
-	},
+
+	// 🔹 Catch-all
+	{ path: "*", element: <NotFound /> },
 ]);
 
 export default function AppRoutes() {
