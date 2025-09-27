@@ -1,30 +1,18 @@
-import React, { useEffect, useState } from "react";
-import { motion } from "framer-motion";
+import { useEffect, useState } from "react";
 import { PieChart, Pie, Cell, ResponsiveContainer, LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip } from "recharts";
-import { IoAddOutline, IoCalendarOutline } from "react-icons/io5";
+import { IoCalendarOutline } from "react-icons/io5";
 import Card from "@/components/ui/Card";
 import Button from "@/components/ui/Button";
-import Input from "@/components/ui/Input";
+import { Utensils } from "lucide-react";
 
 const water = {
 	consumed: 5,
 	goal: 8,
 	unit: "glasses",
 };
-const weeklyCalorieData = [
-	{ day: "Mon", calories: 3000 },
-	{ day: "Tue", calories: 2900 },
-	{ day: "Wed", calories: 2200 },
-	{ day: "Thu", calories: 1700 },
-	{ day: "Fri", calories: 3100 },
-	{ day: "Sat", calories: 1800 },
-	{ day: "Sun", calories: 2500 },
-];
 
 const Nutrition = () => {
-	const [newCalories, setNewCalories] = useState("");
-	const [foodName, setFoodName] = useState("");
-	const [showAddCalories, setShowAddCalories] = useState(false);
+	const [loading, setLoading] = useState(true);
 	const [today, setToday] = useState([]);
 	const [info, setInfo] = useState({
 		totalCalories: 0,
@@ -41,67 +29,55 @@ const Nutrition = () => {
 	const clientUrl = import.meta.env.VITE_CLIENT_URL;
 
 	useEffect(() => {
-		const fetchTodaysMeals = async () => {
-			try {
-				const userId = localStorage.getItem("userId");
-
-				const response1 = await fetch(`${clientUrl}/dashboard/${userId}`);
-				const data1 = await response1.json();
-				if (!response1.ok) {
-					throw new Error("Failed to fetch calories");
-				}
-				setInfo(data1);
-				const response = await fetch(`${clientUrl}/fitness/meals/${userId}`);
-				if (!response.ok) {
-					throw new Error("Failed to fetch today's meals");
-				}
-				const data = await response.json();
-				setToday(data.meals);
-			} catch (error) {
-				console.error("Error fetching today's meals:", error.message);
-			}
-		};
-
 		fetchTodaysMeals();
 	}, []);
 
-	const handleAddCalories = async () => {
-		if (!newCalories || isNaN(Number(newCalories)) || !foodName) return;
-
-		const today = new Date().toISOString().split("T")[0];
-
+	const fetchTodaysMeals = async () => {
 		try {
 			const userId = localStorage.getItem("userId");
 			const token = localStorage.getItem("token");
-			const response = await fetch(`${clientUrl}/fitness/calories`, {
-				method: "POST",
+			const response1 = await fetch(`${clientUrl}/user/dashboard/${userId}`, {
+				method: "GET",
 				headers: {
 					"Content-Type": "application/json",
 					Authorization: `Bearer ${token}`,
 				},
-				body: JSON.stringify({
-					userId,
-					date: today,
-					calories: Number(newCalories),
-					food: foodName,
-				}),
 			});
-
-			if (!response.ok) {
-				throw new Error("Failed to add calorie entry");
+			const data1 = await response1.json();
+			if (!response1.ok) {
+				throw new Error("Failed to fetch user data");
 			}
+			setInfo(data1);
+			setLoading(false);
 
-			await response.json();
-			window.location.reload();
-
-			setNewCalories("");
-			setFoodName("");
-			setShowAddCalories(false);
+			const response = await fetch(`${clientUrl}/fitness/meals/${userId}`, {
+				method: "GET",
+				headers: {
+					"Content-Type": "application/json",
+					Authorization: `Bearer ${token}`,
+				},
+			});
+			if (!response.ok) {
+				throw new Error("Failed to fetch today's meals");
+			}
+			const data = await response.json();
+			setToday(data.meals);
 		} catch (error) {
-			console.error("Error adding calorie entry:", error.message);
+			console.error("Error fetching today's meals:", error.message);
 		}
 	};
 
+	const historyCalorie = info?.calorieHistory || [];
+	const calories = historyCalorie.map((item) => item.value);
+	const minCalorie = Math.min(...calories) - 100 || 0;
+	const maxCalorie = Math.max(...calories) + 500 || 3000;
+	if (loading) {
+		return (
+			<div className="h-full w-full flex items-center justify-center">
+				<div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-primary-500"></div>
+			</div>
+		);
+	}
 	return (
 		<div className="space-y-6">
 			<div className="flex flex-col md:flex-row justify-between items-start md:items-center">
@@ -115,34 +91,8 @@ const Nutrition = () => {
 						<IoCalendarOutline size={18} className="text-primary-500" />
 						<span>{new Date().toLocaleDateString("en-US", { month: "long", day: "numeric", year: "numeric" })}</span>
 					</div>
-
-					<Button variant="primary" icon={<IoAddOutline size={18} />} onClick={() => setShowAddCalories(true)}>
-						Add Meal
-					</Button>
 				</div>
 			</div>
-
-			{showAddCalories && (
-				<motion.div initial={{ opacity: 0, height: 0 }} animate={{ opacity: 1, height: "auto" }} className="bg-dark-800 rounded-lg p-4 border border-dark-700">
-					<div className="flex flex-col md:flex-row items-end gap-4">
-						<div className="flex-grow">
-							<Input label="Calories Consumed" type="number" step="100" value={newCalories} onChange={(e) => setNewCalories(e.target.value)} placeholder="Enter calories consumed" />
-						</div>
-						<div className="flex-grow">
-							<Input label="Food Name" type="text" value={foodName} onChange={(e) => setFoodName(e.target.value)} placeholder="Enter food name" />
-						</div>
-
-						<div className="flex space-x-2">
-							<Button variant="secondary" onClick={() => setShowAddCalories(false)}>
-								Cancel
-							</Button>
-							<Button variant="primary" onClick={handleAddCalories}>
-								Save
-							</Button>
-						</div>
-					</div>
-				</motion.div>
-			)}
 
 			<div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
 				<Card className="lg:col-span-2">
@@ -166,12 +116,17 @@ const Nutrition = () => {
 						<h3 className="font-semibold mb-3">Weekly Calories</h3>
 						<div className="h-48">
 							<ResponsiveContainer width="100%" height="100%">
-								<LineChart data={weeklyCalorieData} margin={{ top: 5, right: 10, left: 10, bottom: 5 }}>
+								<LineChart data={historyCalorie} margin={{ top: 5, right: 20, left: 20, bottom: 5 }}>
 									<CartesianGrid strokeDasharray="3 3" stroke="#333" />
-									<XAxis dataKey="day" tick={{ fill: "#ccc" }} />
-									<YAxis tick={{ fill: "#ccc" }} domain={[1500, 2600]} />
-									<Tooltip contentStyle={{ backgroundColor: "#1e1e1e", border: "none", borderRadius: "8px" }} labelStyle={{ color: "#fff" }} formatter={(value) => [`${value} calories`, "Intake"]} />
-									<Line type="monotone" dataKey="calories" stroke="#FF6B00" strokeWidth={3} dot={{ fill: "#FF6B00", r: 4 }} activeDot={{ fill: "#FF6B00", r: 6, stroke: "#fff", strokeWidth: 2 }} />
+									<XAxis dataKey="date" tick={{ fill: "#ccc" }} tickFormatter={(value) => new Date(value).toLocaleDateString("en-US", { month: "short", day: "numeric" })} />
+									<YAxis tick={{ fill: "#ccc" }} domain={[minCalorie, maxCalorie]} />
+									<Tooltip
+										contentStyle={{ backgroundColor: "#1e1e1e", border: "none", borderRadius: "8px" }}
+										labelStyle={{ color: "#fff" }}
+										formatter={(value) => [`${value} kcal`]}
+										labelFormatter={(value) => new Date(value).toLocaleDateString("en-US", { month: "long", day: "numeric", year: "numeric" })}
+									/>
+									<Line type="monotone" dataKey="value" stroke="#FF6B00" strokeWidth={3} dot={{ fill: "#FF6B00", r: 4 }} activeDot={{ fill: "#FF6B00", r: 6, stroke: "#fff", strokeWidth: 2 }} />
 								</LineChart>
 							</ResponsiveContainer>
 						</div>
@@ -238,7 +193,7 @@ const Nutrition = () => {
 							<div key={meal.id} className="border-b border-dark-700 pb-4 last:border-0 last:pb-0">
 								<div className="flex items-center justify-between cursor-pointer">
 									<div className="flex items-center">
-										<div className="p-3 bg-primary-500 bg-opacity-20 rounded-lg mr-4">{meal.icon}</div>
+										<Utensils className="text-primary-500 mr-2" />
 										<div>
 											<h3 className="font-semibold">{meal.name}</h3>
 										</div>

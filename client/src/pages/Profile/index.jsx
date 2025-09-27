@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import { useState, useEffect } from "react";
 import { useForm } from "react-hook-form";
 import { motion } from "framer-motion";
 import { User, Mail, Phone, MapPin, CalendarDays, Settings, Trophy, Circle, Camera } from "lucide-react";
@@ -68,7 +68,7 @@ const Profile = () => {
 					weight: data.weight || user.bodyMeasurement.weight,
 					fitnessGoal: data.fitnessGoal || user.user.fitnessgoal,
 					gender: data.gender || user.bodyMeasurement.gender,
-					imgurl: data?.imgurl || user.user?.imgurl,
+					imgurl: data?.imgurl || user.user?.imgurl || "",
 				}),
 			});
 
@@ -115,7 +115,7 @@ const Profile = () => {
 					<Card>
 						<div className="flex flex-col md:flex-row items-center mb-6">
 							<div className="mb-4 md:mb-0 md:mr-6">
-								{user.user.imageurl ? (
+								{user?.user?.imageurl ? (
 									<img src={user.user.imageurl} alt={user.user.name} className="h-24 w-24 rounded-full object-cover border-4 border-primary-500" />
 								) : (
 									<div className="h-24 w-36 rounded-full bg-primary-500 flex items-center justify-center">
@@ -131,7 +131,7 @@ const Profile = () => {
 									<span className="bg-primary-500 bg-opacity-20 text-primary-500 px-3 py-1 rounded-full text-sm mr-2 mb-2">
 										{user?.role === "admin" ? "Admin" : user?.role === "trainer" ? "Trainer" : "Member"}
 									</span>
-									<span className="bg-dark-700 text-gray-300 px-3 py-1 rounded-full text-sm mr-2 mb-2">{user.user.membershipType} Membership</span>
+									<span className="bg-dark-700 text-gray-300 px-3 py-1 rounded-full text-sm mr-2 mb-2">{user.user?.membershipType} Membership</span>
 								</div>
 							</div>
 						</div>
