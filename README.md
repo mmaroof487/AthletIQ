@@ -1,5 +1,12 @@
 # 🏋️ AthletIQ – Fitness & Nutrition Tracker
 
+[![License](https://img.shields.io/badge/License-MIT-green.svg)](LICENSE)
+![Build Status](https://img.shields.io/badge/build-passing-brightgreen)
+![Tech](https://img.shields.io/badge/Tech-MERN%20Stack-blue)
+![Database](https://img.shields.io/badge/Database-PostgreSQL-lightblue)
+![UI](https://img.shields.io/badge/UI-TailwindCSS-purple)
+![Status](https://img.shields.io/badge/Status-Active-success)
+
 AthletIQ is a **fitness and nutrition tracking web application** that helps users stay on top of their health goals.
 It provides tools to **log workouts, track meals, monitor calories, and analyze progress** over time.
 
@@ -20,32 +27,37 @@ It provides tools to **log workouts, track meals, monitor calories, and analyze 
 
 ## 🛠️ Tech Stack
 
-**Frontend:**
+**Frontend**
 
 - React.js + Vite
 - Tailwind CSS (UI Styling)
 - Recharts (Data Visualization)
 - Framer Motion (Animations)
 
-  **Backend:**
+**Backend**
 
 - Node.js & Express.js
 - PostgreSQL (Database)
 - JWT Authentication
 
-  **Other Tools:**
+**Other Tools**
 
 - Git & GitHub (Version Control)
 - Insomnia (API Testing)
 - Figma (UI/UX Design)
 
+---
+
 ## ⚙️ Setup & Installation
 
 1. **Clone the repository**
+
    ```bash
    git clone https://github.com/your-username/AthletIQ.git
    cd AthletIQ
+
    ```
+
 2. **Backend Setup**
    ```
     cd server
