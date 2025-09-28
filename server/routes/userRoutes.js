@@ -5,6 +5,6 @@ const router = express.Router();
 
 router.get("/dashboard/:userId", getDashboard);
 router.get("/profile/:userId", getProfile);
-router.post("/update/:userId", updateProfile);
+router.post("/profile/update", updateProfile);
 
 export default router;

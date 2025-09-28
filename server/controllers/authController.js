@@ -5,11 +5,11 @@ import { createToken } from "../utils/jwt.js";
 export const register = async (req, res) => {
 	const { email, password } = req.body;
 	try {
-		const existing = await client.query("SELECT * FROM member WHERE email = $1", [email]);
+		const existing = await client.query("SELECT * FROM clients WHERE email = $1", [email]);
 		if (existing.rows.length > 0) return res.status(400).json({ message: "Email already exists" });
 
 		const hashedPassword = await bcrypt.hash(password, 10);
-		const result = await client.query("INSERT INTO member (email, password) VALUES ($1, $2) RETURNING *", [email, hashedPassword]);
+		const result = await client.query("INSERT INTO clients (email, password) VALUES ($1, $2) RETURNING *", [email, hashedPassword]);
 
 		const token = createToken(result.rows[0]);
 		res.status(201).json({ token, user: result.rows[0] });
@@ -22,7 +22,7 @@ export const register = async (req, res) => {
 export const login = async (req, res) => {
 	const { email, password } = req.body;
 	try {
-		const result = await client.query("SELECT * FROM member WHERE email = $1", [email]);
+		const result = await client.query("SELECT * FROM clients WHERE email = $1", [email]);
 		if (result.rows.length === 0) return res.status(400).json({ message: "Invalid credentials" });
 
 		const user = result.rows[0];

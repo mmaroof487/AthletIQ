@@ -20,7 +20,7 @@ export const addWeight = async (req, res) => {
 
 	try {
 		const date = new Date().toISOString().split("T")[0];
-		const userResult = await client.query("SELECT id FROM member WHERE id = $1", [userId]);
+		const userResult = await client.query("SELECT id FROM clients WHERE id = $1", [userId]);
 		if (userResult.rows.length === 0) {
 			return res.status(404).json({ error: "User not found" });
 		}
