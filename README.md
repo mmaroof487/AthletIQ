@@ -20,19 +20,21 @@ It provides tools to **log workouts, track meals, monitor calories, and analyze 
 
 ## 🛠️ Tech Stack
 
-**Frontend:**
-
 - React.js + Vite
 - Tailwind CSS (UI Styling)
 - Recharts (Data Visualization)
 - Framer Motion (Animations)
+
   **Backend:**
-- Node.js & Express
+
+- Node.js & Express.js
 - PostgreSQL (Database)
 - JWT Authentication
+
   **Other Tools:**
+
 - Git & GitHub (Version Control)
-- Postman (API Testing)
+- Insomnia (API Testing)
 - Figma (UI/UX Design)
 
 ## ⚙️ Setup & Installation

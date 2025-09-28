@@ -1,6 +1,6 @@
 import { useState, useEffect } from "react";
 import { motion } from "framer-motion";
-import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, BarChart, Bar, PieChart, Pie, Cell } from "recharts";
+import { Tooltip, ResponsiveContainer, PieChart, Pie, Cell } from "recharts";
 import { Calendar, TrendingUp, Activity, Dumbbell, Utensils, ScaleIcon } from "lucide-react";
 import Card from "@/components/ui/Card";
 import { api } from "@/services/api";
