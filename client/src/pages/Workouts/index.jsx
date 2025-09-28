@@ -1,5 +1,6 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { motion } from "framer-motion";
+import { Link } from "react-router-dom";
 import { Dumbbell, Clock, User, Calendar, Heart, Plus, ArrowRight, X, MoreVertical, Filter } from "lucide-react";
 import Card from "@/components/ui/Card";
 import Button from "@/components/ui/Button";
@@ -11,7 +12,7 @@ import exerciseLibrary from "./components/exerciseLibrary";
 import upcomingWorkouts from "./components/upcomingWorkouts";
 
 const Workouts = () => {
-	const [activeTab, setActiveTab] = useState("plans");
+	const [activeTab, setActiveTab] = useState("upcoming");
 	const [showAddWorkout, setShowAddWorkout] = useState(false);
 	const [selectedCategory, setSelectedCategory] = useState(null);
 	const [searchTerm, setSearchTerm] = useState("");
@@ -22,6 +23,31 @@ const Workouts = () => {
 
 		return matchesCategory && matchesSearch;
 	});
+
+	const [timers, setTimers] = useState({}); // Track timer for each workout
+
+	useEffect(() => {
+		const interval = setInterval(() => {
+			setTimers((prev) => Object.fromEntries(Object.entries(prev).map(([id, t]) => [id, t.running ? { ...t, time: t.time + 1 } : t])));
+		}, 1000);
+
+		return () => clearInterval(interval);
+	}, []);
+
+	const toggleTimer = (id) => {
+		setTimers((prev) => ({
+			...prev,
+			[id]: { time: prev[id]?.time || 0, running: !prev[id]?.running },
+		}));
+	};
+
+	const formatTime = (seconds) => {
+		const m = Math.floor(seconds / 60)
+			.toString()
+			.padStart(2, "0");
+		const s = (seconds % 60).toString().padStart(2, "0");
+		return `${m}:${s}`;
+	};
 
 	return (
 		<div className="space-y-6">
@@ -35,15 +61,15 @@ const Workouts = () => {
 			{/* Tabs */}
 			<div className="flex border-b border-dark-700">
 				<button
-					className={`px-6 py-3 font-medium focus:outline-none ${activeTab === "plans" ? "text-primary-500 border-b-2 border-primary-500" : "text-gray-400 hover:text-gray-300"}`}
-					onClick={() => setActiveTab("plans")}>
-					Workout Plans
-				</button>
-
-				<button
 					className={`px-6 py-3 font-medium focus:outline-none ${activeTab === "upcoming" ? "text-primary-500 border-b-2 border-primary-500" : "text-gray-400 hover:text-gray-300"}`}
 					onClick={() => setActiveTab("upcoming")}>
 					Upcoming Workouts
+				</button>
+
+				<button
+					className={`px-6 py-3 font-medium focus:outline-none ${activeTab === "plans" ? "text-primary-500 border-b-2 border-primary-500" : "text-gray-400 hover:text-gray-300"}`}
+					onClick={() => setActiveTab("plans")}>
+					Workout Plans
 				</button>
 
 				<button
@@ -113,155 +139,10 @@ const Workouts = () => {
 				</motion.div>
 			)}
 
-			{/* Workout Plans Tab */}
-			{activeTab === "plans" && (
-				<div className="space-y-6">
-					<div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-						{workoutPlans.map((plan, index) => (
-							<motion.div key={plan.id} initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: index * 0.1 }}>
-								<Card className="h-full" hoverEffect>
-									<div className="relative h-48 -mx-6 -mt-6 mb-4 rounded-t-xl overflow-hidden">
-										<img src={plan.image} alt={plan.title} className="w-full h-full object-cover" />
-										<div className="absolute inset-0 bg-gradient-to-t from-dark-900 to-transparent"></div>
-										<div className="absolute bottom-4 left-4">
-											<span className="bg-primary-500 text-white px-3 py-1 rounded-full text-xs font-medium">{plan.level}</span>
-										</div>
-									</div>
-
-									<h3 className="text-xl font-semibold mb-2">{plan.title}</h3>
-									<p className="text-gray-400 text-sm mb-4">{plan.description}</p>
-
-									<div className="grid grid-cols-2 gap-3 mb-4">
-										<div className="flex items-center text-sm">
-											<Clock size={16} className="text-primary-500 mr-2" />
-											<span>{plan.duration}</span>
-										</div>
-
-										<div className="flex items-center text-sm">
-											<Calendar size={16} className="text-primary-500 mr-2" />
-											<span>{plan.frequency}</span>
-										</div>
-
-										<div className="flex items-center text-sm col-span-2">
-											<Dumbbell size={16} className="text-primary-500 mr-2" />
-											<span>Focus: {plan.focus}</span>
-										</div>
-									</div>
-
-									<div className="mt-auto pt-4 border-t border-dark-700">
-										<a href={plan.link} target="_blank" rel="noopener noreferrer">
-											<Button variant="primary" fullWidth>
-												View Plan
-											</Button>
-										</a>
-									</div>
-								</Card>
-							</motion.div>
-						))}
-					</div>
-
-					<Card title="Recommended Plans for You">
-						<div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-							<div className="flex bg-dark-700 rounded-lg overflow-hidden hover:bg-dark-600 transition-colors">
-								<img src="https://images.pexels.com/photos/6550851/pexels-photo-6550851.jpeg?auto=compress&cs=tinysrgb&w=150" alt="Weight Loss Plan" className="w-24 h-24 object-cover" />
-								<div className="p-3">
-									<h4 className="font-medium">8-Week Weight Loss</h4>
-									<p className="text-xs text-gray-400 mb-2">Mixed cardio and strength</p>
-									<div className="flex items-center text-primary-500 text-sm">
-										<span>View Plan</span>
-										<ArrowRight size={14} className="ml-1" />
-									</div>
-								</div>
-							</div>
-
-							<div className="flex bg-dark-700 rounded-lg overflow-hidden hover:bg-dark-600 transition-colors">
-								<img src="https://images.pexels.com/photos/2294361/pexels-photo-2294361.jpeg?auto=compress&cs=tinysrgb&w=150" alt="Core Strength" className="w-24 h-24 object-cover" />
-								<div className="p-3">
-									<h4 className="font-medium">Core Strength</h4>
-									<p className="text-xs text-gray-400 mb-2">4 weeks to stronger abs</p>
-									<div className="flex items-center text-primary-500 text-sm">
-										<span>View Plan</span>
-										<ArrowRight size={14} className="ml-1" />
-									</div>
-								</div>
-							</div>
-
-							<div className="flex bg-dark-700 rounded-lg overflow-hidden hover:bg-dark-600 transition-colors">
-								<img src="https://images.pexels.com/photos/6551136/pexels-photo-6551136.jpeg?auto=compress&cs=tinysrgb&w=150" alt="Flexibility & Mobility" className="w-24 h-24 object-cover" />
-								<div className="p-3">
-									<h4 className="font-medium">Flexibility & Mobility</h4>
-									<p className="text-xs text-gray-400 mb-2">Improve range of motion</p>
-									<div className="flex items-center text-primary-500 text-sm">
-										<span>View Plan</span>
-										<ArrowRight size={14} className="ml-1" />
-									</div>
-								</div>
-							</div>
-						</div>
-					</Card>
-				</div>
-			)}
-
 			{/* Upcoming Workouts Tab */}
 			{activeTab === "upcoming" && (
 				<div className="space-y-6">
-					<Card title="Today's Workout">
-						{upcomingWorkouts[0] ? (
-							<div className="bg-dark-700 p-4 rounded-lg">
-								<div className="flex flex-col md:flex-row md:items-center md:justify-between">
-									<div>
-										<div className="flex items-center">
-											<div className="p-2 bg-primary-500 bg-opacity-20 rounded-lg mr-3">
-												<Dumbbell size={20} className="text-primary-500" />
-											</div>
-											<h3 className="text-xl font-semibold">{upcomingWorkouts[0].title}</h3>
-										</div>
-
-										<div className="mt-2 grid grid-cols-1 md:grid-cols-3 gap-2">
-											<div className="flex items-center text-sm">
-												<Clock size={16} className="text-primary-500 mr-2" />
-												<span>{upcomingWorkouts[0].duration} min</span>
-											</div>
-
-											<div className="flex items-center text-sm">
-												<User size={16} className="text-primary-500 mr-2" />
-												<span>With {upcomingWorkouts[0].trainer}</span>
-											</div>
-
-											<div className="flex items-center text-sm">
-												<Calendar size={16} className="text-primary-500 mr-2" />
-												<span>
-													{new Date(upcomingWorkouts[0].date).toLocaleTimeString([], {
-														hour: "2-digit",
-														minute: "2-digit",
-													})}
-												</span>
-											</div>
-										</div>
-									</div>
-
-									<div className="mt-4 md:mt-0 flex space-x-3">
-										<Button variant="secondary" size="sm">
-											Reschedule
-										</Button>
-
-										<Button variant="primary" size="sm">
-											Start Workout
-										</Button>
-									</div>
-								</div>
-							</div>
-						) : (
-							<div className="text-center py-8">
-								<p className="text-gray-400 mb-4">No workouts scheduled for today</p>
-								<Button variant="primary" onClick={() => setShowAddWorkout(true)}>
-									Schedule a Workout
-								</Button>
-							</div>
-						)}
-					</Card>
-
-					<h2 className="heading-3 mt-6">Upcoming Schedule</h2>
+					<h2 className="heading-3 mt-6">Workout Schedule</h2>
 
 					<div className="space-y-4">
 						{upcomingWorkouts.map((workout, index) => (
@@ -305,6 +186,12 @@ const Workouts = () => {
 									</div>
 
 									<div className="mt-4 md:mt-0 flex items-center space-x-2">
+										<Button variant="primary" size="sm" onClick={() => toggleTimer(workout.id)}>
+											{timers[workout.id]?.running ? "Stop" : "Start"}
+										</Button>
+
+										{timers[workout.id] && <span className="ml-2 text-gray-400 text-sm">{formatTime(timers[workout.id].time)}</span>}
+
 										<div className="bg-primary-500 bg-opacity-20 text-primary-500 px-3 py-1 rounded-full text-xs">{workout.duration} min</div>
 
 										<button className="p-2 hover:bg-dark-700 rounded-full transition-colors">
@@ -320,6 +207,54 @@ const Workouts = () => {
 						<Button variant="outline" onClick={() => setShowAddWorkout(true)}>
 							Schedule More Workouts
 						</Button>
+					</div>
+				</div>
+			)}
+
+			{/* Workout Plans Tab */}
+			{activeTab === "plans" && (
+				<div className="space-y-6">
+					<div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+						{workoutPlans.map((plan, index) => (
+							<motion.div key={plan.id} initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: index * 0.1 }}>
+								<Card className="h-full flex flex-col" hoverEffect>
+									<div className="relative h-48 -mx-6 -mt-6 mb-4 rounded-t-xl overflow-hidden">
+										<img src={plan.image} alt={plan.title} className="w-full h-full object-cover" />
+										<div className="absolute inset-0 bg-gradient-to-t from-dark-900 to-transparent"></div>
+										<div className="absolute bottom-4 left-4">
+											<span className="bg-primary-500 text-white px-3 py-1 rounded-full text-xs font-medium">{plan.level}</span>
+										</div>
+									</div>
+
+									<h3 className="text-xl font-semibold mb-2">{plan.title}</h3>
+									<p className="text-gray-400 text-sm mb-4">{plan.focus} Workout</p>
+
+									<div className="grid grid-cols-2 gap-3 mb-4">
+										<div className="flex items-center text-sm">
+											<Clock size={16} className="text-primary-500 mr-2" />
+											<span>{plan.duration}</span>
+										</div>
+
+										<div className="flex items-center text-sm">
+											<Calendar size={16} className="text-primary-500 mr-2" />
+											<span>{plan.frequency}</span>
+										</div>
+
+										<div className="flex items-center text-sm col-span-2">
+											<Dumbbell size={16} className="text-primary-500 mr-2" />
+											<span>Focus: {plan.focus}</span>
+										</div>
+									</div>
+
+									<div className="mt-auto pt-4 border-t border-dark-700">
+										<Button variant="primary" fullWidth onClick={() => toggleTimer(plan.id)}>
+											{timers[plan.id]?.running ? "Stop" : "Start"}
+										</Button>
+										{timers[plan.id] && <p className="text-xs text-gray-400 mt-2 text-center">{formatTime(timers[plan.id].time)}</p>}
+									</div>
+								</Card>
+							</motion.div>
+						))}
 					</div>
 				</div>
 			)}
@@ -387,11 +322,11 @@ const Workouts = () => {
 										</div>
 
 										<div className="mt-auto pt-4 border-t border-dark-700 flex items-center justify-between">
-											<a href={exercise.link} target="_blank" rel="noopener noreferrer">
+											<Link to={exercise.link} target="_blank" rel="noopener noreferrer">
 												<Button variant="primary" size="sm">
 													How to
 												</Button>
-											</a>
+											</Link>
 										</div>
 									</div>
 								</Card>
