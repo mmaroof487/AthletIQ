@@ -20,6 +20,8 @@ It provides tools to **log workouts, track meals, monitor calories, and analyze 
 
 ## 🛠️ Tech Stack
 
+**Frontend:**
+
 - React.js + Vite
 - Tailwind CSS (UI Styling)
 - Recharts (Data Visualization)
