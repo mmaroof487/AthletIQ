@@ -1,6 +1,5 @@
 # 🏋️ AthletIQ – Fitness & Nutrition Tracker
 
-[![License](https://img.shields.io/badge/License-MIT-green.svg)](LICENSE)
 ![Build Status](https://img.shields.io/badge/build-passing-brightgreen)
 ![Tech](https://img.shields.io/badge/Tech-MERN%20Stack-blue)
 ![Database](https://img.shields.io/badge/Database-PostgreSQL-lightblue)
