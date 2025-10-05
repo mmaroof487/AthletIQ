@@ -26,7 +26,7 @@ const Profile = () => {
 	});
 	const clientUrl = import.meta.env.VITE_CLIENT_URL;
 	//*add activity level to profile state
-
+	//! this page opens from register as well when no data is fetched in dashboard
 	useEffect(() => {
 		fetchUserProfile();
 	}, []);
