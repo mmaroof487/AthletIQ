@@ -8,7 +8,7 @@ import Input from "@/components/ui/Input";
 
 const Login = () => {
 	const [generalError, setGeneralError] = useState(null);
-	// const clientUrl = import.meta.env.VITE_CLIENT_URL;
+	const clientUrl = import.meta.env.VITE_CLIENT_URL;
 
 	const {
 		register,
@@ -20,7 +20,7 @@ const Login = () => {
 
 	const onSubmit = async (data) => {
 		try {
-			const response = await fetch(`https://server-ncmd.onrender.com/api/v1/auth/login`, {
+			const response = await fetch(`${clientUrl}/auth/login`, {
 				method: "POST",
 				headers: {
 					"Content-Type": "application/json",
