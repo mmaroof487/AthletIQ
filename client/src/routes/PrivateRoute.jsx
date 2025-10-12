@@ -1,17 +1,12 @@
 import { Navigate } from "react-router-dom";
-import { useState, useEffect } from "react";
 
 const PrivateRoute = ({ children }) => {
-	const [isAuth, setIsAuth] = useState(null);
+	const token = localStorage.getItem("token");
 
-	useEffect(() => {
-		const token = localStorage.getItem("token");
-		setIsAuth(!!token);
-	}, []);
+	if (!token) {
+		return <Navigate to="/login" replace />;
+	}
 
-	if (isAuth === null) return null; // or a loader
-
-	return isAuth ? children : <Navigate to="/login" replace />;
+	return children;
 };
-
 export default PrivateRoute;
