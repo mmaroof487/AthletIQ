@@ -12,35 +12,16 @@ import authMiddleware from "./middlewares/authMiddleware.js";
 dotenv.config();
 const app = express();
 
-app.use(
-	cors({
-		origin: process.env.CLIENT_URL,
-		methods: ["GET", "POST", "PUT", "DELETE", "OPTIONS"],
-		credentials: true,
-	})
-);
+app.use(cors());
 
-app.options(
-	"*",
-	cors({
-		origin: process.env.CLIENT_URL,
-		methods: ["GET", "POST", "PUT", "DELETE", "OPTIONS"],
-		credentials: true,
-	})
-);
-
-// Parse JSON and cookies
 app.use(express.json());
 app.use(cookieParser());
 
-// ✅ All routes are relative paths
 app.use("/api/v1/auth", authRoutes);
 app.use("/api/v1/fitness", authMiddleware, fitnessRoutes);
 app.use("/api/v1/user", authMiddleware, userRoutes);
 
-// Health check
 app.get("/", (req, res) => res.send("Server is running"));
 
-// Start server
 const PORT = process.env.PORT || 5000;
 app.listen(PORT, () => console.log(`Server running on port ${PORT}`));
