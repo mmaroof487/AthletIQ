@@ -12,7 +12,7 @@ import authMiddleware from "./middlewares/authMiddleware.js";
 dotenv.config();
 const app = express();
 
-const frontendUrl = process.env.CLIENT_URL; // e.g., https://athletiq-4gix.onrender.com
+const frontendUrl = "https://athletiq-4gix.onrender.com"; 
 
 app.use(
 	cors({
@@ -40,3 +40,4 @@ app.use("/api/v1/user", authMiddleware, userRoutes);
 
 const PORT = process.env.PORT || 5000;
 app.listen(PORT, () => console.log(`Server running on port ${PORT}`));
+
