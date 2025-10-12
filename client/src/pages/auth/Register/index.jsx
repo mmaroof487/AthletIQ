@@ -37,8 +37,7 @@ const Register = () => {
 			const dataResponse = await response.json();
 
 			if (!response.ok) {
-				const errorData = await dataResponse.json();
-				throw new Error(errorData.message || "Registration failed");
+				throw new Error(dataResponse.message || "Registration failed");
 			}
 
 			localStorage.setItem("token", dataResponse.token);
