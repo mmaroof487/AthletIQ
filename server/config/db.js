@@ -4,11 +4,8 @@ import dotenv from "dotenv";
 dotenv.config();
 
 const client = new Client({
-	user: process.env.DB_USER,
-	host: process.env.DB_HOST || "localhost",
-	database: process.env.DB_NAME,
-	password: process.env.DB_PASSWORD,
-	port: parseInt(process.env.DB_PORT, 10),
+	connectionString: process.env.DATABASE_URL,
+	ssl: process.env.NODE_ENV === "development" ? { rejectUnauthorized: false } : false,
 });
 
 client
