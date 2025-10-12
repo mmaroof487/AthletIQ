@@ -12,7 +12,7 @@ import authMiddleware from "./middlewares/authMiddleware.js";
 dotenv.config();
 const app = express();
 
-const frontendUrl = process.env.CLIENT_URL;
+const frontendUrl = process.env.CLIENT_URL; // e.g., https://athletiq-4gix.onrender.com
 
 app.use(
 	cors({
