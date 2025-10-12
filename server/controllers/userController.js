@@ -137,8 +137,6 @@ export const updateProfile = async (req, res) => {
 		// Insert into weight_history
 		await client.query("INSERT INTO weight_history (user_id, date, weight) VALUES ($1, $2, $3)", [userId, date, weight]);
 
-		await client.query("COMMIT");
-
 		res.status(200).json({
 			message: "Profile and body measurements updated successfully",
 			user: { id: userId, name, phone, address, birthday, height, weight, age, calorieIntake, fitnessGoal, gender },
