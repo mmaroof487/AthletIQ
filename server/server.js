@@ -17,7 +17,7 @@ const frontendUrl = 'https://athletiq-4gix.onrender.com';
 app.use(cors({
   origin: frontendUrl,          
   methods: ['GET','POST','PUT','DELETE','OPTIONS'],
-  credentials: true,            \
+  credentials: true,            
 }));
 
 app.options('*', cors({
@@ -35,3 +35,4 @@ app.use("/api/v1/user", authMiddleware, userRoutes);
 
 const PORT = process.env.PORT || 5000;
 app.listen(PORT, () => console.log(`Server running on port ${PORT}`));
+
