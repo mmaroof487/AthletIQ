@@ -12,12 +12,9 @@ import authMiddleware from "./middlewares/authMiddleware.js";
 dotenv.config();
 const app = express();
 
-// Frontend URL for CORS
-const frontendUrl = process.env.CLIENT_URL || "https://athletiq-4gix.onrender.com";
-
 app.use(
 	cors({
-		origin: frontendUrl,
+		origin: process.env.CLIENT_URL,
 		methods: ["GET", "POST", "PUT", "DELETE", "OPTIONS"],
 		credentials: true,
 	})
@@ -26,7 +23,7 @@ app.use(
 app.options(
 	"*",
 	cors({
-		origin: frontendUrl,
+		origin: process.env.CLIENT_URL,
 		methods: ["GET", "POST", "PUT", "DELETE", "OPTIONS"],
 		credentials: true,
 	})
