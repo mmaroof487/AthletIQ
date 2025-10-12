@@ -3,6 +3,7 @@ import { getDashboard, getProfile, updateProfile } from "../controllers/userCont
 
 const router = express.Router();
 
+// Always relative paths
 router.get("/dashboard/:userId", getDashboard);
 router.get("/profile/:userId", getProfile);
 router.post("/profile/update", updateProfile);
