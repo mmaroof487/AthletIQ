@@ -12,19 +12,24 @@ import authMiddleware from "./middlewares/authMiddleware.js";
 dotenv.config();
 const app = express();
 
-const frontendUrl = 'https://athletiq-4gix.onrender.com';
+const frontendUrl = process.env.CLIENT_URL;
 
-app.use(cors({
-  origin: frontendUrl,          
-  methods: ['GET','POST','PUT','DELETE','OPTIONS'],
-  credentials: true,            
-}));
+app.use(
+	cors({
+		origin: frontendUrl,
+		methods: ["GET", "POST", "PUT", "DELETE", "OPTIONS"],
+		credentials: true,
+	})
+);
 
-app.options('*', cors({
-  origin: frontendUrl,
-  methods: ['GET','POST','PUT','DELETE','OPTIONS'],
-  credentials: true,
-}));
+app.options(
+	"*",
+	cors({
+		origin: frontendUrl,
+		methods: ["GET", "POST", "PUT", "DELETE", "OPTIONS"],
+		credentials: true,
+	})
+);
 
 app.use(express.json());
 app.use(cookieParser());
@@ -35,4 +40,3 @@ app.use("/api/v1/user", authMiddleware, userRoutes);
 
 const PORT = process.env.PORT || 5000;
 app.listen(PORT, () => console.log(`Server running on port ${PORT}`));
-
