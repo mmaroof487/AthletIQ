@@ -14,7 +14,7 @@ const app = express();
 
 app.use(
 	cors({
-		origin: "https://athletiq-frontend.onrender.com/register",
+		origin: "https://athletiq-frontend.onrender.com",
 		credentials: true,
 	})
 );
@@ -27,5 +27,6 @@ app.use("/api/v1/user", authMiddleware, userRoutes);
 
 const PORT = process.env.PORT || 5000;
 app.listen(PORT, () => console.log(`Server running on port ${PORT}`));
+
 
 
