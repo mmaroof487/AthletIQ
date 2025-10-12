@@ -51,7 +51,6 @@ const Calories = ({ caloriesStats, historyCalorie, minCalorie, maxCalorie, clien
 
 			if (!response.ok) throw new Error("Failed to add calorie entry");
 
-			window.location.reload();
 			setNewCalories("");
 			setFoodName("");
 			setShowAddCalories(false);
