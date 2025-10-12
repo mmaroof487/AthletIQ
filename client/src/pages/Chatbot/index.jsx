@@ -1,5 +1,4 @@
-import React, { useState, useRef, useEffect } from "react";
-import axios from "axios";
+import { useState, useRef, useEffect } from "react";
 import { motion } from "framer-motion";
 import { IoSend } from "react-icons/io5";
 import Card from "@/components/ui/Card";

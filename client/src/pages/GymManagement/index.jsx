@@ -43,7 +43,6 @@ const GymManagement = () => {
 		}
 	};
 
-	// Filter and sort members
 	const filteredMembers = members
 		.filter(
 			(member) =>
@@ -60,7 +59,6 @@ const GymManagement = () => {
 			return 0;
 		});
 
-	// Filter and sort trainers
 	const filteredTrainers = trainers
 		.filter(
 			(trainer) =>
@@ -77,7 +75,6 @@ const GymManagement = () => {
 			return 0;
 		});
 
-	// Mock data for dashboard
 	const dashboardData = {
 		activeMemberships: 152,
 		expiringThisMonth: 8,

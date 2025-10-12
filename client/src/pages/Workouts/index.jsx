@@ -24,7 +24,7 @@ const Workouts = () => {
 		return matchesCategory && matchesSearch;
 	});
 
-	const [timers, setTimers] = useState({}); // Track timer for each workout
+	const [timers, setTimers] = useState({});
 
 	useEffect(() => {
 		const interval = setInterval(() => {

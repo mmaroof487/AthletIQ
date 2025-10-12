@@ -98,7 +98,6 @@ const router = createBrowserRouter([
 		],
 	},
 
-	// 🔹 Catch-all
 	{ path: "*", element: <NotFound /> },
 ]);
 

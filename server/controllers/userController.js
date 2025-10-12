@@ -104,14 +104,12 @@ export const updateProfile = async (req, res) => {
 			[userId, name, phone, address, birthday, fitnessGoal, age, imgurl]
 		);
 
-		// Check if bodymeasurement exists
 		const bodyResult = await client.query("SELECT * FROM bodymeasurement WHERE user_id = $1", [userId]);
 
 		let startingWeight, weightChange;
 		const date = new Date().toISOString().split("T")[0];
 
 		if (bodyResult.rows.length === 0) {
-			// First entry
 			startingWeight = weight;
 			weightChange = 0;
 
@@ -134,7 +132,6 @@ export const updateProfile = async (req, res) => {
 			);
 		}
 
-		// Insert into weight_history
 		await client.query("INSERT INTO weight_history (user_id, date, weight) VALUES ($1, $2, $3)", [userId, date, weight]);
 
 		res.status(200).json({

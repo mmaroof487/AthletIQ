@@ -43,7 +43,6 @@ export const addWeight = async (req, res) => {
 		let startingWeight, weightChange;
 
 		if (bodyResult.rows.length === 0) {
-			// First weight entry
 			startingWeight = weight;
 			weightChange = 0;
 
