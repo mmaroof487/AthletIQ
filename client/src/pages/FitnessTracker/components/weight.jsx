@@ -23,8 +23,6 @@ const Weight = ({ weightStats, historyWeight, minWeight, maxWeight, clientUrl })
 			});
 
 			if (!response.ok) throw new Error("Failed to add weight entry");
-
-			window.location.reload();
 		} catch (error) {
 			console.error("Error adding weight entry:", error.message);
 		}

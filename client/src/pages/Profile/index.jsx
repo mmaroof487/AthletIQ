@@ -43,7 +43,6 @@ const Profile = () => {
 					Authorization: `Bearer ${token}`,
 				},
 			});
-
 			const data = await response.json();
 			setProfile({
 				name: data[0]?.name || "",
@@ -55,17 +54,17 @@ const Profile = () => {
 				weight: data[1]?.weight || "",
 				fitnessGoal: data[0]?.fitnessgoal || "",
 				gender: data[1]?.gender || "",
-				imgurl: data[0]?.imgurl || "",
+				imgurl: data[0]?.imageurl,
 			});
 			setLoading(false);
 			if (!response.ok) {
 				throw new Error("Failed to fetch user data");
 			}
+			console.log(data[0]);
 		} catch (err) {
 			setError(err.message || "Failed to fetch user profile");
 		}
 	};
-
 	const {
 		register,
 		handleSubmit,
@@ -74,6 +73,7 @@ const Profile = () => {
 
 	const onSubmit = async (data) => {
 		try {
+			setLoading(true);
 			const userId = localStorage.getItem("userId");
 			const token = localStorage.getItem("token");
 			const response = await fetch(`${clientUrl}/user/profile/update`, {
@@ -99,14 +99,10 @@ const Profile = () => {
 			if (!response.ok) {
 				throw new Error("Failed to update profile");
 			}
-			setLoading(true);
 			await fetchUserProfile();
 			setUpdateSuccess(true);
 			setEditing(false);
 			setTimeout(() => setLoading(false), 2000);
-			setTimeout(() => {
-				window.location.reload();
-			}, 3000);
 		} catch (err) {
 			console.error("Update profile error:", err);
 			setError(err?.message || "Failed to update profile");
@@ -144,8 +140,8 @@ const Profile = () => {
 					<Card>
 						<div className="flex flex-col md:flex-row items-center mb-4">
 							<div className="mb-4 md:mb-0 md:mr-6">
-								{profile?.imageurl ? (
-									<img src={profile.imageurl} alt={profile.name} className="h-24 w-24 rounded-full object-cover border-4 border-primary-500" />
+								{profile?.imgurl !== "" || profile?.imgur !== null ? (
+									<img src={profile?.imgurl} alt={profile?.name} className="h-24 w-24 rounded-full object-cover border-4 border-primary-500" />
 								) : (
 									<div className="h-24 w-36 rounded-full bg-primary-500 flex items-center justify-center">
 										<span className="text-white text-3xl font-bold">{profile?.name?.charAt(0)}</span>
@@ -155,7 +151,7 @@ const Profile = () => {
 
 							<div className="text-center md:text-left">
 								<h2 className="text-2xl font-bold">{profile?.name}</h2>
-								<p className="text-gray-400">{profile?.email}</p>
+								<p className="text-gray-400">{profile?.email} blah</p>
 							</div>
 						</div>
 
