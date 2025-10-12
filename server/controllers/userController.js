@@ -1,5 +1,17 @@
 import client from "../config/db.js";
 
+function calculateCalories(weight, height, age, gender, activityFactor = 1.2) {
+	let bmr;
+	if (gender.toLowerCase() === "male") {
+		bmr = 10 * weight + 6.25 * height - 5 * age + 5;
+	} else if (gender.toLowerCase() === "female") {
+		bmr = 10 * weight + 6.25 * height - 5 * age - 161;
+	} else {
+		bmr = 10 * weight + 6.25 * height - 5 * age - 120;
+	}
+	return Math.round(bmr * activityFactor);
+}
+
 export const getDashboard = async (req, res) => {
 	const { userId } = req.params;
 
@@ -67,88 +79,72 @@ export const getProfile = async (req, res) => {
 export const updateProfile = async (req, res) => {
 	const { userId, name, phone, address, birthday, height, weight, fitnessGoal, gender, imgurl } = req.body;
 
-	try {
-		if (!name) return res.status(400).json({ message: "Name is required." });
+	if (!name) return res.status(400).json({ message: "Name is required." });
 
-		const userQuery = `SELECT * FROM clients WHERE id = $1`;
-		const userResult = await client.query(userQuery, [userId]);
-		if (userResult.rows.length === 0) return res.status(404).json({ message: "User not found." });
+	try {
+		const userResult = await client.query("SELECT * FROM clients WHERE id = $1", [userId]);
+		if (userResult.rows.length === 0) {
+			return res.status(404).json({ message: "User not found." });
+		}
 
 		const birthDate = new Date(birthday);
 		const today = new Date();
 		let age = today.getFullYear() - birthDate.getFullYear();
-		let m = today.getMonth() - birthDate.getMonth();
-		if (m < 0 || (m === 0 && today.getDate() < birthDate.getDate())) age--;
+		if (today.getMonth() < birthDate.getMonth() || (today.getMonth() === birthDate.getMonth() && today.getDate() < birthDate.getDate())) {
+			age--;
+		}
 
 		const activityLevel = 1.2;
-		let bmr;
-		if (gender.toLowerCase() === "male") {
-			bmr = 10 * weight + 6.25 * height - 5 * age + 5;
-		} else if (gender.toLowerCase() === "female") {
-			bmr = 10 * weight + 6.25 * height - 5 * age - 161;
-		} else {
-			bmr = 10 * weight + 6.25 * height - 5 * age - 120;
-		}
-		const calorieIntake = Math.round(bmr * activityLevel);
+		const calorieIntake = calculateCalories(weight, height, age, gender, activityLevel);
 
-		const clientUpdateQuery = `
-      UPDATE clients
-      SET name = $2, phone_number = $3, address = $4, birthday = $5, fitnessgoal = $6, age = $7, imageurl=$8
-      WHERE id = $1;
-    `;
-		await client.query(clientUpdateQuery, [userId, name, phone, address, birthday, fitnessGoal, age, imgurl]);
+		await client.query(
+			`UPDATE clients
+			SET name=$2, phone_number=$3, address=$4, birthday=$5, fitnessgoal=$6, age=$7, imageurl=$8
+			WHERE id=$1`,
+			[userId, name, phone, address, birthday, fitnessGoal, age, imgurl]
+		);
 
-		const existingResult = await client.query("SELECT * FROM bodymeasurement WHERE user_id = $1", [userId]);
+		// Check if bodymeasurement exists
+		const bodyResult = await client.query("SELECT * FROM bodymeasurement WHERE user_id = $1", [userId]);
 
 		let startingWeight, weightChange;
 		const date = new Date().toISOString().split("T")[0];
 
-		if (existingResult.rows.length === 0) {
-			// First weight entry
+		if (bodyResult.rows.length === 0) {
+			// First entry
 			startingWeight = weight;
 			weightChange = 0;
 
-			const insertQuery = `
-        INSERT INTO bodymeasurement (user_id, date, weight, startingweight, weightchange, calorieintake, height, gender)
-        VALUES ($1, $2, $3, $4, $5, $6, $7, $8)
-        RETURNING *;
-      `;
-			await client.query(insertQuery, [userId, date, weight, startingWeight, weightChange, calorieIntake, height, gender]);
+			await client.query(
+				`INSERT INTO bodymeasurement
+				(user_id, date, weight, startingweight, weightchange, calorieintake, height, gender)
+				VALUES ($1,$2,$3,$4,$5,$6,$7,$8)`,
+				[userId, date, weight, startingWeight, weightChange, calorieIntake, height, gender]
+			);
 		} else {
-			// Update existing measurement
-			const existing = existingResult.rows[0];
+			const existing = bodyResult.rows[0];
 			startingWeight = existing.startingweight || existing.weight;
 			weightChange = weight - startingWeight;
 
-			const updateQuery = `
-        UPDATE bodymeasurement
-        SET date = $1, weight = $2, weightchange = $3, calorieintake = $4, height = $5, gender = $6
-        WHERE user_id = $7
-        RETURNING *;
-      `;
-			await client.query(updateQuery, [date, weight, weightChange, calorieIntake, height, gender, userId]);
+			await client.query(
+				`UPDATE bodymeasurement
+				SET date=$1, weight=$2, weightchange=$3, calorieintake=$4, height=$5, gender=$6
+				WHERE user_id=$7`,
+				[date, weight, weightChange, calorieIntake, height, gender, userId]
+			);
 		}
 
+		// Insert into weight_history
 		await client.query("INSERT INTO weight_history (user_id, date, weight) VALUES ($1, $2, $3)", [userId, date, weight]);
+
+		await client.query("COMMIT");
 
 		res.status(200).json({
 			message: "Profile and body measurements updated successfully",
-			user: {
-				id: userId,
-				name,
-				phone,
-				address,
-				birthday,
-				height,
-				weight,
-				age,
-				calorieIntake,
-				fitnessGoal,
-				gender,
-			},
+			user: { id: userId, name, phone, address, birthday, height, weight, age, calorieIntake, fitnessGoal, gender },
 		});
-	} catch (error) {
-		console.error("Error updating profile:", error);
-		res.status(500).json({ message: "Failed to update profile", error: error.message });
+	} catch (err) {
+		console.error("Error updating profile:", err);
+		res.status(500).json({ message: "Failed to update profile", error: err.message });
 	}
 };
