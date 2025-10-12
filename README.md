@@ -1,7 +1,7 @@
-# 🏋️ AthletIQ – Fitness & Nutrition Tracker
+# AthletIQ – Fitness & Nutrition Tracker
 
 ![Build Status](https://img.shields.io/badge/build-passing-brightgreen)
-![Tech](https://img.shields.io/badge/Tech-MERN%20Stack-blue)
+![Tech](https://img.shields.io/badge/Tech-PERN%20Stack-blue)
 ![Database](https://img.shields.io/badge/Database-PostgreSQL-lightblue)
 ![UI](https://img.shields.io/badge/UI-TailwindCSS-purple)
 ![Status](https://img.shields.io/badge/Status-Active-success)
