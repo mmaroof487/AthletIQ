@@ -4,6 +4,44 @@ import { IoSend } from "react-icons/io5";
 import Card from "@/components/ui/Card";
 import { GoogleGenAI } from "@google/genai";
 
+// import { BedrockRuntimeClient, InvokeModelCommand } from "@aws-sdk/client-bedrock-runtime";
+// const client = new BedrockRuntimeClient({ region: "us-east-1" });
+// export async function generateAIResponse(message, user) {
+//   const command = new InvokeModelCommand({
+//     modelId: "anthropic.claude-3-sonnet",
+//     body: JSON.stringify({
+//       prompt: `You are a certified fitness trainer. Based on the user's info:
+//       Height: ${user.height} cm
+//       Weight: ${user.weight} kg
+//       Goal: ${user.goal}
+//       Activity: ${user.activity}
+//       Message: "${message}"
+//       Give a personalized fitness or nutrition response.`,
+//       max_tokens: 300,
+//     }),
+//   });
+//   const response = await client.send(command);
+//   return JSON.parse(Buffer.from(response.body).toString()).output_text;
+// }
+// import OpenAI from "openai";
+// const openai = new OpenAI({ apiKey: process.env.OPENAI_API_KEY });
+// export async function generateAIResponse(message, user) {
+//   const response = await openai.chat.completions.create({
+//     model: "gpt-4o-mini",
+//     messages: [
+//       {
+//         role: "system",
+//         content: `You are a professional fitness trainer helping users reach their goals.`,
+//       },
+//       {
+//         role: "user",
+//         content: `User data: ${JSON.stringify(user)}. Message: ${message}`,
+//       },
+//     ],
+//   });
+//   return response.choices[0].message.content;
+// }
+
 const Chatbot = () => {
 	const [messages, setMessages] = useState([
 		{
