@@ -8,11 +8,13 @@ A full‑stack fitness and gym management platform built with the PERN stack. It
 
 ## 📷 Screenshots
 
-| Authentication Page                                   | Profile                                                 | Dashboard                                                  |
-| ----------------------------------------------------- | ------------------------------------------------------- | ---------------------------------------------------------- |
-| ![Home](./client/public/screenshots/image.png)        | ![Detail](./client/public/screenshots/image-copy.png)   | ![Dashboard](./client/public/screenshots/image-copy-1.png) |
-| Nutrition Tracker                                     | Workout                                                 | fitnessAi                                                  |
-| ![Home](./client/public/screenshots/image-copy-3.png) | ![Detail](./client/public/screenshots/image-copy-4.png) | ![Dashboard](./client/public/screenshots/image-copy-2.png) |
+| Authentication Page                                            | Profile                                                             | Dashboard                                                             |
+| -------------------------------------------------------------- | ------------------------------------------------------------------- | --------------------------------------------------------------------- |
+| <img src="./client/public/screenshots/image.png" width="300"/> | <img src="./client/public/screenshots/image-copy.png" width="300"/> | <img src="./client/public/screenshots/image-copy-1.png" width="300"/> |
+
+| Nutrition Tracker                                                     | Workout                                                               | Fitness AI                                                            |
+| --------------------------------------------------------------------- | --------------------------------------------------------------------- | --------------------------------------------------------------------- |
+| <img src="./client/public/screenshots/image-copy-3.png" width="300"/> | <img src="./client/public/screenshots/image-copy-4.png" width="300"/> | <img src="./client/public/screenshots/image-copy-2.png" width="300"/> |
 
 ## 🧩 Tech Stack
 
