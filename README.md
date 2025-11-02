@@ -59,7 +59,6 @@ A full‑stack fitness and gym management platform built with the PERN stack. It
 - Calorie & macro tracker: calculates optimal intake based on user stats
 - Progress charts: visualize weight, calorie consumption, performance trends
 - Gym management: create or join gyms, manage memberships & plans
-- Trainer support: assign trainers, create workout plans, track member performance
 
 ---
 
@@ -69,14 +68,9 @@ A full‑stack fitness and gym management platform built with the PERN stack. It
 - Tags/categories + advanced search/sort for workouts and meals
 - Theme switcher (dark/light mode)
 - Mobile‑first improvements, potentially PWA experience
-- Better security: rate‑limiting, role‑based access (admin/moderator)
 - CI/CD pipeline, automated tests, code linting/enforcement
-- Google & direct‑mail login options
+- Googlel login option
 - Bug‑reporting button (e.g., via Sentry)
-- Add GitHub repo link + live project link fields for each workout/meal
-- Prevent full form resets on single‑field validation errors
-- Redesigned card layout on the home/dashboard screen
-- “Show more / Show less” toggle for lists of workouts/meals
 
 ---
 
