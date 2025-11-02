@@ -8,9 +8,11 @@ A full‑stack fitness and gym management platform built with the PERN stack. It
 
 ## 📷 Screenshots
 
-| Authentication Page                            | Profile                                               | fitnessAi Project                                          |
-| ---------------------------------------------- | ----------------------------------------------------- | ---------------------------------------------------------- |
-| ![Home](./client/public/screenshots/image.png) | ![Detail](./client/public/screenshots/image-copy.png) | ![Dashboard](./client/public/screenshots/image-copy-2.png) |
+| Authentication Page                                   | Profile                                                 | Dashboard                                                  |
+| ----------------------------------------------------- | ------------------------------------------------------- | ---------------------------------------------------------- |
+| ![Home](./client/public/screenshots/image.png)        | ![Detail](./client/public/screenshots/image-copy.png)   | ![Dashboard](./client/public/screenshots/image-copy-1.png) |
+| Nutrition Tracker                                     | Workout                                                 | fitnessAi                                                  |
+| ![Home](./client/public/screenshots/image-copy-3.png) | ![Detail](./client/public/screenshots/image-copy-4.png) | ![Dashboard](./client/public/screenshots/image-copy-2.png) |
 
 ## 🧩 Tech Stack
 
@@ -37,11 +39,12 @@ A full‑stack fitness and gym management platform built with the PERN stack. It
 
 ## 📂 Project Structure
 
-AthletIQ/
-├─ client/ # Front‑end (React + Vite)
-├─ server/ # Back‑end (Node, Express, PostgreSQL)
+```
+├─ client/                 # Front‑end (React + Vite)
+├─ server/                 # Back‑end (Node, Express, PostgreSQL)
 ├─ .gitignore
 └─ README.md
+```
 
 ---
 
