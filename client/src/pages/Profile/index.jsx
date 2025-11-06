@@ -139,15 +139,22 @@ const Profile = () => {
 			<div className="grid grid-cols-1 lg:grid-cols-1 gap-6 lg:px-12">
 				<div className="lg:col-span-2 space-y-6">
 					<Card>
-						<div className="flex flex-col md:flex-row items-center mb-4">
-							<div className="mb-4 md:mb-0 md:mr-6">
-								{profile?.imgurl !== "" || profile?.imgur !== null ? (
-									<img src={profile.imgurl} alt={profile.name} className="h-24 w-24 rounded-full object-cover border-4 border-primary-500" />
-								) : (
-									<div className="h-24 w-36 rounded-full bg-primary-500 flex items-center justify-center">
-										<span className="text-white text-3xl font-bold">{profile?.name?.charAt(0)}</span>
-									</div>
-								)}
+						<div className="flex flex-col md:flex-row items-center mb-4 gap-4">
+							{profile?.imgurl ? (
+								<img
+									src={profile.imgurl}
+									alt={profile?.name || profile?.email}
+									className="h-24 w-24 rounded-full object-cover border-4 border-primary-500"
+									onError={(e) => {
+										e.target.onerror = null;
+										e.target.style.display = "none";
+										e.target.nextSibling.style.display = "flex";
+									}}
+								/>
+							) : null}
+
+							<div style={{ display: profile?.imgurl ? "none" : "flex" }} className="h-24 w-24 rounded-full bg-primary-500 flex items-center justify-center">
+								<span className="text-white text-3xl font-bold">{profile?.name?.charAt(0)?.toUpperCase() || profile?.email?.charAt(0)?.toUpperCase() || "?"}</span>
 							</div>
 
 							<div className="text-center md:text-left">
