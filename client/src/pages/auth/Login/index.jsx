@@ -8,6 +8,7 @@ import Input from "@/components/ui/Input";
 
 const Login = () => {
 	const [generalError, setGeneralError] = useState(null);
+	const [remember, setRemember] = useState(false);
 	const clientUrl = import.meta.env.VITE_CLIENT_URL;
 
 	const {
@@ -41,12 +42,17 @@ const Login = () => {
 			localStorage.setItem("token", dataResponse.token);
 			localStorage.setItem("userId", dataResponse.user.id);
 
+			if (remember) localStorage.setItem("rememberedUser", JSON.stringify({ email: data.email, password: data.password }));
+			else localStorage.removeItem("rememberedUser");
+
 			navigate("/dashboard");
 		} catch (error) {
 			setGeneralError(error.message || "Failed to login. Please try again.");
 		}
 	};
-
+	const rem = JSON.parse(localStorage.getItem("rememberedUser"));
+	const remEmail = rem?.email;
+	const remPass = rem?.password;
 	return (
 		<motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.5 }}>
 			<h1 className="text-3xl font-bold mb-1 text-center">Welcome Back</h1>
@@ -61,6 +67,7 @@ const Login = () => {
 					placeholder="you@example.com"
 					icon={<Mail size={18} />}
 					error={errors.email?.message}
+					value={remEmail}
 					{...register("email", {
 						required: "Email is required",
 						pattern: {
@@ -76,6 +83,7 @@ const Login = () => {
 					placeholder="••••••••"
 					icon={<Lock size={18} />}
 					error={errors.password?.message}
+					value={remPass}
 					{...register("password", {
 						required: "Password is required",
 						minLength: {
@@ -87,7 +95,7 @@ const Login = () => {
 
 				<div className="flex items-center justify-between text-sm">
 					<label className="inline-flex items-center">
-						<input type="checkbox" className="rounded border-gray-600 text-primary-500 focus:ring-primary-500" />
+						<input type="checkbox" className="rounded border-gray-600 text-primary-500 focus:ring-primary-500" checked={remember} onChange={(e) => setRemember(e.target.checked)} />
 						<span className="ml-2 text-gray-300">Remember me</span>
 					</label>
 
