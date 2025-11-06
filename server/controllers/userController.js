@@ -25,7 +25,11 @@ export const getDashboard = async (req, res) => {
 		const bodyMeasurement = bodyMeasurementResult.rows.sort((a, b) => new Date(b.date) - new Date(a.date))[0];
 
 		const mealsResult = await client.query(
-			`SELECT COALESCE(SUM(calories),0) AS total_calories
+			`SELECT
+				COALESCE(SUM(calories), 0) AS total_calories,
+				COALESCE(SUM(protein), 0) AS total_protein,
+				COALESCE(SUM(carbs), 0) AS total_carbs,
+				COALESCE(SUM(fat), 0) AS total_fat
 			FROM meals
 			WHERE user_id = $1 AND date = $2`,
 			[userId, date]
@@ -33,28 +37,45 @@ export const getDashboard = async (req, res) => {
 
 		const weightResult = await client.query(
 			`SELECT weight, date
-       		FROM weight_history
-       		WHERE user_id = $1
-       		ORDER BY date DESC
-       		LIMIT 5`,
+			 FROM weight_history
+			 WHERE user_id = $1
+			 ORDER BY date DESC
+			 LIMIT 5`,
 			[userId]
 		);
 
 		const calorieResult = await client.query(
 			`SELECT date, SUM(calories) AS total_calories
-			FROM meals
-			WHERE user_id = $1
-			GROUP BY date
-			ORDER BY date DESC
-			LIMIT 5`,
+			 FROM meals
+			 WHERE user_id = $1
+			 GROUP BY date
+			 ORDER BY date DESC
+			 LIMIT 5`,
 			[userId]
 		);
 
+		const protein = Number(mealsResult.rows[0].total_protein) || 0;
+		const carbs = Number(mealsResult.rows[0].total_carbs) || 0;
+		const fat = Number(mealsResult.rows[0].total_fat) || 0;
+
+		const macroData = [
+			{ name: "Protein", value: protein },
+			{ name: "Carbs", value: carbs },
+			{ name: "Fat", value: fat },
+		];
+
 		res.json({
 			bodyMeasurement,
-			totalCalories: mealsResult.rows[0].total_calories,
-			weightHistory: weightResult.rows.reverse().map((row) => ({ date: row.date, value: row.weight })),
-			calorieHistory: calorieResult.rows.reverse().map((row) => ({ date: row.date, value: Number(row.total_calories) })),
+			totalCalories: Number(mealsResult.rows[0].total_calories) || 0,
+			macroData,
+			weightHistory: weightResult.rows.reverse().map((row) => ({
+				date: row.date,
+				value: row.weight,
+			})),
+			calorieHistory: calorieResult.rows.reverse().map((row) => ({
+				date: row.date,
+				value: Number(row.total_calories),
+			})),
 		});
 	} catch (err) {
 		console.error("Error fetching user dashboard:", err);

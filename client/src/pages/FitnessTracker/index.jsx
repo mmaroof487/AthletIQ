@@ -84,7 +84,7 @@ const FitnessTracker = () => {
 				))}
 			</div>
 
-			{activeTab === "calories" && <Calories caloriesStats={caloriesStats} historyCalorie={historyCalorie} minCalorie={minCalorie} maxCalorie={maxCalorie} clientUrl={clientUrl} />}
+			{activeTab === "calories" && <Calories caloriesStats={caloriesStats} historyCalorie={historyCalorie} minCalorie={minCalorie} maxCalorie={maxCalorie} />}
 
 			{activeTab === "weight" && <Weights weightStats={weightStats} historyWeight={historyWeight} minWeight={minWeight} maxWeight={maxWeight} clientUrl={clientUrl} />}
 		</div>

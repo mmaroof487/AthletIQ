@@ -26,6 +26,7 @@ const Weight = ({ weightStats, historyWeight, minWeight, maxWeight, clientUrl })
 		} catch (error) {
 			console.error("Error adding weight entry:", error.message);
 		}
+		window.location.reload();
 	};
 
 	return (
