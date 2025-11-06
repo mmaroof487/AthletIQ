@@ -4,29 +4,36 @@ import { IoCalendarOutline } from "react-icons/io5";
 import Card from "@/components/ui/Card";
 import Button from "@/components/ui/Button";
 import { Utensils } from "lucide-react";
+import Foodentry from "@/components/Foodentry";
 
-const water = {
-	consumed: 5,
-	goal: 8,
-	unit: "glasses",
-};
+const COLORS = ["#22C55E", "#3B82F6", "#FF6B00"];
 
 const Nutrition = () => {
+	const [showAddCalories, setShowAddCalories] = useState(false);
 	const [loading, setLoading] = useState(true);
 	const [today, setToday] = useState([]);
+	const [macroData, setMacroData] = useState([]);
+	const clientUrl = import.meta.env.VITE_CLIENT_URL;
 	const [info, setInfo] = useState({
 		totalCalories: 0,
-		bodyMeasurement: {
-			calorieintake: 0,
-		},
+		bodyMeasurement: { calorieintake: 0 },
 	});
-	const macroData = [
-		{ name: "Protein", value: 40 * 4 },
-		{ name: "Carbs", value: 60 * 4 },
-		{ name: "Fat", value: 20 * 9 },
-	];
-	const COLORS = ["#22C55E", "#3B82F6", "#FF6B00"];
-	const clientUrl = import.meta.env.VITE_CLIENT_URL;
+
+	const day = new Date().toISOString().split("T")[0]; // e.g. "2025-11-06"
+
+	const getInitialWater = () => {
+		const saved = JSON.parse(localStorage.getItem("waterData"));
+		if (saved && saved.date === day) {
+			return saved;
+		}
+		return { consumed: 0, goal: 15, unit: "glasses", date: day };
+	};
+	const [water, setWater] = useState(getInitialWater);
+	const addWater = () => {
+		const updated = { ...water, consumed: water.consumed + 1 };
+		setWater(updated);
+		localStorage.setItem("waterData", JSON.stringify(updated));
+	};
 
 	useEffect(() => {
 		fetchTodaysMeals();
@@ -36,6 +43,7 @@ const Nutrition = () => {
 		try {
 			const userId = localStorage.getItem("userId");
 			const token = localStorage.getItem("token");
+
 			const response1 = await fetch(`${clientUrl}/user/dashboard/${userId}`, {
 				method: "GET",
 				headers: {
@@ -44,12 +52,11 @@ const Nutrition = () => {
 				},
 			});
 			const data1 = await response1.json();
-			if (!response1.ok) {
-				throw new Error("Failed to fetch user data");
-			}
-			setInfo(data1);
-			setLoading(false);
+			if (!response1.ok) throw new Error("Failed to fetch user dashboard");
 
+			setInfo(data1);
+			setMacroData(data1.macroData || []);
+			setLoading(false);
 			const response = await fetch(`${clientUrl}/fitness/meals/${userId}`, {
 				method: "GET",
 				headers: {
@@ -57,9 +64,7 @@ const Nutrition = () => {
 					Authorization: `Bearer ${token}`,
 				},
 			});
-			if (!response.ok) {
-				throw new Error("Failed to fetch today's meals");
-			}
+			if (!response.ok) throw new Error("Failed to fetch today's meals");
 			const data = await response.json();
 			setToday(data.meals);
 		} catch (error) {
@@ -71,6 +76,7 @@ const Nutrition = () => {
 	const calories = historyCalorie.map((item) => item.value);
 	const minCalorie = Math.min(...calories) - 100 || 0;
 	const maxCalorie = Math.max(...calories) + 500 || 3000;
+
 	if (loading) {
 		return (
 			<div className="h-full w-full flex items-center justify-center">
@@ -87,12 +93,19 @@ const Nutrition = () => {
 				</div>
 
 				<div className="flex items-center space-x-2 mt-4 md:mt-0">
-					<div className="flex items-center space-x-2 text-sm mr-4">
-						<IoCalendarOutline size={18} className="text-primary-500" />
-						<span>{new Date().toLocaleDateString("en-US", { month: "long", day: "numeric", year: "numeric" })}</span>
+					<div className="flex items-center space-x-2 text-sm mr-4 flex-col gap-2">
+						<div className="flex items-center justify-between gap-2">
+							<IoCalendarOutline size={18} className="text-primary-500" />
+							<span>{new Date().toLocaleDateString("en-US", { month: "long", day: "numeric", year: "numeric" })}</span>
+						</div>
+						<Button variant="secondary" size="sm" onClick={() => setShowAddCalories(!showAddCalories)}>
+							Add Entry
+						</Button>
 					</div>
 				</div>
 			</div>
+
+			{showAddCalories && <Foodentry setShowAddCalories={setShowAddCalories} />}
 
 			<div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
 				<Card className="lg:col-span-2">
@@ -145,11 +158,11 @@ const Nutrition = () => {
 									))}
 								</Pie>
 								<Tooltip
-									contentStyle={{ backgroundColor: "#1e1e1e", border: "none", borderRadius: "8px" }}
+									contentStyle={{ backgroundColor: "#cccccc", border: "none", borderRadius: "8px" }}
 									formatter={(value, name) => {
 										const totalCalories = macroData.reduce((sum, item) => sum + item.value, 0);
 										const percentage = Math.round((value / totalCalories) * 100);
-										return [`${percentage}% (${value} cal)`, name];
+										return [`${percentage}% (${value} g)`, name];
 									}}
 								/>
 							</PieChart>
@@ -176,7 +189,7 @@ const Nutrition = () => {
 							</div>
 						</div>
 						<div className="flex justify-center mt-3">
-							<Button variant="outline" size="sm">
+							<Button variant="outline" size="sm" onClick={addWater}>
 								Add Water
 							</Button>
 						</div>
