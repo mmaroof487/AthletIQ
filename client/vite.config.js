@@ -12,4 +12,12 @@ export default defineConfig({
 			"@": path.resolve(__dirname, "./src"),
 		},
 	},
+	server: {
+		port: 5173,
+		cors: true,
+		// Remove ALL headers - don't set any COOP or COEP headers
+		hmr: {
+			overlay: false,
+		},
+	},
 });

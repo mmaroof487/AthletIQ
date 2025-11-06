@@ -5,6 +5,7 @@ import { motion } from "framer-motion";
 import { User, Lock } from "lucide-react";
 import Button from "@/components/ui/Button";
 import Input from "@/components/ui/Input";
+import Google from "../components/Google";
 
 const Register = () => {
 	const [generalError, setGeneralError] = useState(null);
@@ -104,6 +105,8 @@ const Register = () => {
 					Create Account
 				</Button>
 			</form>
+
+			<Google setGeneralError={setGeneralError} clientUrl={clientUrl} />
 
 			<div className="mt-8 text-center">
 				<p className="text-gray-400">

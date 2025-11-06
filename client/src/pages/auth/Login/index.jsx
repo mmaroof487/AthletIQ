@@ -5,6 +5,7 @@ import { motion } from "framer-motion";
 import { Mail, Lock } from "lucide-react";
 import Button from "@/components/ui/Button";
 import Input from "@/components/ui/Input";
+import Google from "../components/Google";
 
 const Login = () => {
 	const [generalError, setGeneralError] = useState(null);
@@ -42,17 +43,21 @@ const Login = () => {
 			localStorage.setItem("token", dataResponse.token);
 			localStorage.setItem("userId", dataResponse.user.id);
 
-			if (remember) localStorage.setItem("rememberedUser", JSON.stringify({ email: data.email, password: data.password }));
-			else localStorage.removeItem("rememberedUser");
+			// Only remember email, never password
+			if (remember) {
+				localStorage.setItem("rememberedEmail", data.email);
+			} else {
+				localStorage.removeItem("rememberedEmail");
+			}
 
 			navigate("/dashboard");
 		} catch (error) {
 			setGeneralError(error.message || "Failed to login. Please try again.");
 		}
 	};
-	const rem = JSON.parse(localStorage.getItem("rememberedUser"));
-	const remEmail = rem?.email;
-	const remPass = rem?.password;
+
+	const rememberedEmail = localStorage.getItem("rememberedEmail") || "";
+
 	return (
 		<motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.5 }}>
 			<h1 className="text-3xl font-bold mb-1 text-center">Welcome Back</h1>
@@ -67,7 +72,7 @@ const Login = () => {
 					placeholder="you@example.com"
 					icon={<Mail size={18} />}
 					error={errors.email?.message}
-					value={remEmail}
+					defaultValue={rememberedEmail}
 					{...register("email", {
 						required: "Email is required",
 						pattern: {
@@ -83,7 +88,6 @@ const Login = () => {
 					placeholder="••••••••"
 					icon={<Lock size={18} />}
 					error={errors.password?.message}
-					value={remPass}
 					{...register("password", {
 						required: "Password is required",
 						minLength: {
@@ -99,15 +103,17 @@ const Login = () => {
 						<span className="ml-2 text-gray-300">Remember me</span>
 					</label>
 
-					<a href="#" className="text-primary-500 hover:text-primary-400 transition-colors">
+					<Link to="/forgot-password" className="text-primary-500 hover:text-primary-400 transition-colors">
 						Forgot password?
-					</a>
+					</Link>
 				</div>
 
 				<Button type="submit" variant="primary" fullWidth isLoading={isSubmitting} className="mt-6">
 					Sign In
 				</Button>
 			</form>
+
+			<Google setGeneralError={setGeneralError} clientUrl={clientUrl} />
 
 			<div className="mt-8 text-center">
 				<p className="text-gray-400">

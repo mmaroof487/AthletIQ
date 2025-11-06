@@ -36,3 +36,19 @@ export const login = async (req, res) => {
 		res.status(500).json({ message: "Login failed" });
 	}
 };
+
+export const googleAuth = async (req, res) => {
+	const { email, name, imgUrl } = req.body;
+	try {
+		let user = await client.query("SELECT * FROM clients WHERE email = $1", [email]);
+		if (user.rows.length === 0) {
+			user = await client.query("INSERT INTO clients (email, name, imageurl) VALUES ($1, $2, $3) RETURNING *", [email, name, imgUrl]);
+		}
+
+		const token = createToken(user.rows[0]);
+		res.status(200).json({ token, user: user.rows[0] });
+	} catch (err) {
+		console.error(err);
+		res.status(500).json({ message: "Google authentication failed" });
+	}
+};
