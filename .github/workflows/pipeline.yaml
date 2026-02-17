@@ -7,8 +7,8 @@ on:
     branches: [ main ]
 
 jobs:
-  frontend:
-    name: Frontend CI
+  client:
+    name: Client CI
     runs-on: ubuntu-latest
 
     defaults:
@@ -24,7 +24,7 @@ jobs:
         with:
           node-version: 20
           cache: 'npm'
-          cache-dependency-path: frontend/package-lock.json
+          cache-dependency-path: client/package-lock.json
 
       - name: Install dependencies
         run: npm ci
@@ -36,8 +36,8 @@ jobs:
         run: npm run build --if-present
 
 
-  backend:
-    name: Backend CI
+  server:
+    name: Server CI
     runs-on: ubuntu-latest
 
     defaults:
@@ -48,13 +48,13 @@ jobs:
       - name: Checkout repository
         uses: actions/checkout@v4
 
-      # Example for Node backend
+      # Example for Node server
       - name: Setup Node
         uses: actions/setup-node@v4
         with:
           node-version: 20
           cache: 'npm'
-          cache-dependency-path: backend/package-lock.json
+          cache-dependency-path: server/package-lock.json
 
       - name: Install dependencies
         run: npm ci
