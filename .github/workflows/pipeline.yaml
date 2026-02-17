@@ -60,9 +60,9 @@ jobs:
         working-directory: server
 
     env:
-      DATABASE_URL: postgresql://postgres:postgrespassthingy@localhost:5432/AthletIQ
-      JWT_SECRET: supersecretjwtkey
-      NODE_ENV: test
+      DATABASE_URL: ${{ secrets.DATABASE_URL }}
+      JWT_SECRET: ${{ secrets.JWT_SECRET }}
+      NODE_ENV: ${{ secrets.NODE_ENV }}
 
     steps:
       - name: Checkout repository
