@@ -1,7 +1,13 @@
 import { Client } from "pg";
 import dotenv from "dotenv";
+import { fileURLToPath } from "url";
+import path from "path";
 
-dotenv.config();
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = path.dirname(__filename);
+
+// Load env from server directory (up one level from config/)
+dotenv.config({ path: path.resolve(__dirname, "..", ".env") });
 
 if (!process.env.DATABASE_URL) {
 	console.error("DATABASE_URL is not defined in environment variables!");
