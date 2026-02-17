@@ -4,7 +4,7 @@ services:
     ports:
       - "5000:5000"
     environment:
-      - DATABASE_URL=postgresql://postgres:ilu>c8cs@host.docker.internal:5433/AthletIQ
+      - DATABASE_URL="postgresql://postgres:ilu>c8cs@host.docker.internal:5433/AthletIQ"
       - NODE_ENV=development
       - JWT_SECRET=supersecretjwtkey
     extra_hosts:
