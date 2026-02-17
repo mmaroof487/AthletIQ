@@ -19,5 +19,5 @@ COPY server .
 # Copy built frontend into server
 COPY --from=client-build /app/client/dist ./public
 
-EXPOSE 3000
+EXPOSE 5000
 CMD ["node", "server.js"]
