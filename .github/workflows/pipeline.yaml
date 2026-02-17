@@ -40,15 +40,34 @@ jobs:
     name: Server CI
     runs-on: ubuntu-latest
 
+    services:
+      postgres:
+        image: postgres:15
+        env:
+          POSTGRES_USER: postgres
+          POSTGRES_PASSWORD: postgrespassthingy
+          POSTGRES_DB: AthletIQ
+        ports:
+          - 5432:5432
+        options: >-
+          --health-cmd="pg_isready -U postgres"
+          --health-interval=10s
+          --health-timeout=5s
+          --health-retries=5
+
     defaults:
       run:
         working-directory: server
+
+    env:
+      DATABASE_URL: postgresql://postgres:postgrespassthingy@localhost:5432/AthletIQ
+      JWT_SECRET: supersecretjwtkey
+      NODE_ENV: test
 
     steps:
       - name: Checkout repository
         uses: actions/checkout@v4
 
-      # Example for Node server
       - name: Setup Node
         uses: actions/setup-node@v4
         with:
@@ -60,4 +79,7 @@ jobs:
         run: npm ci
 
       - name: Build
-        run: node server.js
+        run: npm run build --if-present
+
+      - name: Test
+        run: npm test --if-present
